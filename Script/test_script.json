@@ -1,0 +1,62 @@
+{
+    "title": "Test script",
+    "last-modification": "2025.06.28.13:31",
+    "nodes": [
+        {
+            "id": 0,
+            "message": "Привет! Я тестовый сценарий бота!",
+            "next": 1
+        },
+        {
+            "id": 1,
+            "wait": 2,
+            "next": 2
+        },
+        {
+            "id": 2,
+            "message": "Оцените свой опыт",
+            "buttons": [
+                {
+                    "label": "1",
+                    "next": 3
+                },
+                {
+                    "label": "2",
+                    "next": 3
+                },
+                {
+                    "label": "3",
+                    "next": 4
+                },
+                {
+                    "label": "4",
+                    "next": 4
+                },
+                {
+                    "label": "5",
+                    "next": 4
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "message": "Вот ты жопа с ручкой!"
+        },
+        {
+            "id": 3,
+            "message": "Благодарю!"
+        }
+    ],
+    "node": {
+        "0": {
+            "text": "this is first node",
+            "command": "/start"
+        },
+        "1": {
+            "text": "this is second node"
+        },
+        "2": {
+            "text": "this is third node"
+        }
+    }
+}

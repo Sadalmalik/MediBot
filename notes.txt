@@ -1,0 +1,51 @@
+
+
+
+
+
+
+{
+  "ok": true,
+  "result": {
+    "message_id": 133,
+    "from": {
+      "id": 7463392751,
+      "is_bot": true,
+      "first_name": "TestCheckUpBot",
+      "username": "MySecretTestCheckUpBot"
+    },
+    "chat": {
+      "id": 820216855,
+      "first_name": "\u0413\u043b\u0435\u0431",
+      "last_name": "\u041a\u0443\u0437\u044c\u043c\u0438\u043d",
+      "username": "kaleb_sadalmalik",
+      "type": "private"
+    },
+    "date": 1751121752,
+    "text": "111"
+  }
+}
+
+{'ok': True, 'result': True, 'description': 'Webhook was deleted'}
+
+{
+  "message_id": 134,
+  "from": {
+    "id": 820216855,
+    "is_bot": false,
+    "first_name": "\u0413\u043b\u0435\u0431",
+    "last_name": "\u041a\u0443\u0437\u044c\u043c\u0438\u043d",
+    "username": "kaleb_sadalmalik",
+    "language_code": "ru",
+    "is_premium": true
+  },
+  "chat": {
+    "id": 820216855,
+    "first_name": "\u0413\u043b\u0435\u0431",
+    "last_name": "\u041a\u0443\u0437\u044c\u043c\u0438\u043d",
+    "username": "kaleb_sadalmalik",
+    "type": "private"
+  },
+  "date": 1751121755,
+  "text": "222"
+}

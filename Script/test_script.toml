@@ -1,0 +1,41 @@
+title = "Test script"
+last-modification = "2025.06.28.13:31"
+
+[[nodes]]
+id = 0
+message = "Привет! Я тестовый сценарий бота!"
+next = 1
+
+[[nodes]]
+id = 1
+wait = 2
+next = 2
+
+[[nodes]]
+id = 2
+message = "Оцените свой опыт"
+buttons = [
+    { label = "1", next = 3 },
+    { label = "2", next = 3 },
+    { label = "3", next = 4 },
+    { label = "4", next = 4 },
+    { label = "5", next = 4 },
+]
+
+[[nodes]]
+id = 3
+message = "Вот ты жопа с ручкой!"
+
+[[nodes]]
+id = 3
+message = "Благодарю!"
+
+[node.0]
+command = "/start"
+text = "this is first node"
+
+[node.1]
+text = "this is second node"
+
+[node.2]
+text = "this is third node"
