@@ -1,0 +1,28 @@
+# df
+
+title = "Test script"
+last-modification = "2025.06.29.11:00"
+
+variable.is_quiz_completed = false
+variable.age = 0
+variable.height = 0
+variable.weight = 0
+
+
+[node.start]
+condition = [
+    ["is_quiz_completed", "0", "2"]
+]
+
+[node.0]
+message = "Вы уже прошли опрос. Желаете начать его снова?"
+buttons = [
+    { "нет" = "1" },
+    { "да" = "2" },
+]
+
+[node.1]
+message = ""
+
+[node.2]
+text = "this is third node"

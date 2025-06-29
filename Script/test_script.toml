@@ -31,8 +31,8 @@ id = 3
 message = "Благодарю!"
 
 [node.0]
-command = "/start"
 text = "this is first node"
+command = "/start"
 
 [node.1]
 text = "this is second node"
