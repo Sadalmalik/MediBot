@@ -1,3 +1,4 @@
+import os
 import json
 import requests
 
@@ -13,7 +14,7 @@ class TBot:
         self._working_directory = kwarg.get("working_directory", "bot_folder")
 
         if kwarg.get("use_sessions", False):
-            self._session_manager = SessionsManager()
+            self._session_manager = SessionsManager(folder=os.path.join(self._working_directory, "sessions"))
 
         self._handlers = []
         if kwarg.get("use_commands", False):

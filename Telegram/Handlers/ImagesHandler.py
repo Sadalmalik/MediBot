@@ -1,13 +1,15 @@
+import os
 import requests
 
 from .BaseHandler import BaseHandler
 
 
 class ImagesHandler(BaseHandler):
-    def __init__(self):
+    def __init__(self, **kwargs):
         super().__init__()
         self._photo_handler = None
         self._photo_complete_handler = None
+        self._download_path = kwargs.get("folder", "downloads")
 
     def on_photo(self, func):
         if self._photo_handler is not None:
@@ -42,18 +44,20 @@ class ImagesHandler(BaseHandler):
                 file = result["result"]
                 files[file["file_id"]] = file
         result = []
+        chat_id = message["chat"]["id"]
+        message_id = message["message_id"]
         for uid, file in files.items():
-            file["local_path"] = self._download_file(file, message)
+            file["local_path"] = self._download_file(file, chat_id, message_id)
             result.append(file)
         return result
 
-    def _download_file(self, file, message):
+    def _download_file(self, file, chat_id, message_id):
         if "file_path" not in file:
             return None
         r = requests.get(f"https://api.telegram.org/file/bot{self.bot._token}/{file["file_path"]}",
                          allow_redirects=True)
         fname = os.path.basename(file["file_path"])
-        fpath = f"{self._download_path}/m{message["message_id"]}_{fname}"
+        fpath = f"{self._download_path}/chat{chat_id}/m{message_id}_{fname}"
         folder = os.path.dirname(fpath)
         if not os.path.exists(folder):
             os.makedirs(folder)

@@ -1,4 +1,5 @@
-import toml
+from . import toml
+import json
 
 
 class ScriptRunner:
@@ -13,7 +14,7 @@ class ScriptRunner:
             "variables": variables.copy()
         }
 
-    def start(self, context, script_path):
+    def run_command(self, context, command):
         pass
 
     def run_event(self, context, event):

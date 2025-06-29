@@ -1,7 +1,10 @@
+import asyncio
 import os
 import json
 import tomllib
 import tomli_w
+
+from threading import Timer
 
 from Telegram.TBot import TBot
 from private.config import bot_token
@@ -49,7 +52,15 @@ def test_script_runner():
     print(context)
 
 
+def test_async():
+    print('Hello ...')
+    t = Timer(1.0, lambda: print('... World!'))  # Schedule my_function to run after 5 seconds
+    t.start()
+
+
 if __name__ == "__main__":
+    test_async()
     test_script_runner()
+
     # test_toml_conversion()
     # main()
