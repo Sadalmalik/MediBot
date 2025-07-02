@@ -1,21 +1,60 @@
-import asyncio
 import os
 import json
 import tomllib
 import tomli_w
 
-from threading import Timer
-
 from Telegram.TBot import TBot
 from private.config import bot_token
-from Scenarist import ScriptRunner
 
+
+# Эвенты для стейт-машины сценария:
+# start - старт ноды
+# button - пользователь нажал кнопку
+# message - пользователь прислал сообщение
 
 def main():
-    bot = TBot(bot_token, download_path=os.path.abspath("private/downloads"))
+    bot = TBot(bot_token, download_path=os.path.abspath("private/downloads"), use_sessions=True)
     response = bot.send_question("820216855", "Выбери вариант ответа:", [["нет", "да"]])
 
     print(json.dumps(response, indent=2))
+
+    def message_node_handler(runner, context, step, event, value):
+        if step is None:
+            return
+        if "message" in step:
+            bot.send(context["chat_id"], step["message"])
+
+    def choice_node_handler(runner, context, step, event, value):
+        if step is None:
+            return
+        if "choice" not in step:
+            return
+        choice = step["choice"]
+        if event == "start":
+            buttons = [answer[0] for answer in choice["answers"]]
+            bot.send_question(context["chat_id"], choice["text"], [buttons])
+        elif event == "button":
+            for answer in choice["answers"]:
+                if answer[0] == value:
+                    runner.goto(context, answer[1])
+                    return
+
+    def input_node_handler(runner, context, step, event, value):
+        if step is None:
+            return
+        if "input" not in step:
+            return
+        step_input = step["input"]
+        if event == "start":
+            bot.send(context["chat_id"], step_input["text"])
+        elif event == "message":
+            if "buttons" in step:
+                for btn in step["buttons"]:
+                    if btn[0] == value:
+                        runner.goto(context, btn[1])
+                        return
+
+
 
     @bot.on_message
     def handle_message(message):
@@ -32,35 +71,6 @@ def main():
     bot.run()
 
 
-def test_toml_conversion():
-    with open("Script/test_script.json", "r", encoding="utf8") as script_in:
-        script = json.load(script_in)
-
-    with open("Script/test_script.toml", "wb") as script_out:
-        tomli_w.dump(script, script_out)
-
-    with open("Script/test_script.toml", "rb") as script_in:
-        script = tomllib.load(script_in)
-
-    with open("Script/test_script-2.json", "w") as script_out:
-        json.dump(script, script_out, indent=2)
-
-
-def test_script_runner():
-    runner = ScriptRunner("Script/bot_script.toml")
-    context = runner.create_context()
-    print(context)
-
-
-def test_async():
-    print('Hello ...')
-    t = Timer(1.0, lambda: print('... World!'))  # Schedule my_function to run after 5 seconds
-    t.start()
-
-
 if __name__ == "__main__":
-    test_async()
-    test_script_runner()
-
     # test_toml_conversion()
-    # main()
+    main()

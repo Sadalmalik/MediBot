@@ -26,6 +26,9 @@ class CommandsHandler(BaseHandler):
         self._command_handlers = {}
         self._undefined_command_handler = None
 
+    def add_command(self, command, handler):
+        self._command_handlers[command] = handler
+
     def on_command(self, command):
         def decorator(func):
             self._command_handlers[command] = func

@@ -17,11 +17,12 @@ class TBot:
             self._session_manager = SessionsManager(folder=os.path.join(self._working_directory, "sessions"))
 
         self._handlers = []
+        self._command_handler = None
         if kwarg.get("use_commands", False):
             from .Handlers.CommandsHandler import CommandsHandler
-            handler = CommandsHandler()
-            handler.set_bot(self)
-            self._handlers.append(handler)
+            self._command_handler = CommandsHandler()
+            self._command_handler.set_bot(self)
+            self._handlers.append(self._command_handler)
         if kwarg.get("use_urls", False):
             from .Handlers.URLSHandler import URLSHandler
             handler = URLSHandler()
@@ -60,6 +61,11 @@ class TBot:
         if self._after_messages_handled is not None:
             raise Exception("After Messages handler already defined!")
         self._after_messages_handled = func
+
+    def on_command(self, command):
+        if self._command_handler is None:
+            raise Exception("Command handling not initialized! Please create bot with use_commands=true")
+        return lambda func: self._command_handler.add_command(command, func)
 
     # internal ======================================================================= #
 

@@ -2,22 +2,38 @@
 title = "Test script"
 last-modification = "2025.06.29.11:00"
 
+[variables]
+age = 0
+height = 0
+weight = 0
+
 [node.start]
-message = "Привет!"
+message = '''
+Привет!
+Я волшебный бот!
+'''
 wait = 1
 next = "1"
 
 [node.1]
-message = "Выбери вариант ответа:"
-buttons = [
+choice.text = "Выбери вариант ответа:"
+choice.answers = [
     ["no", "2"],
     ["yes", "3"],
 ]
 
 [node.2]
-message = "Ты выбрал нет!"
-end = true
+range.text = "Пожалуйста выбери уровень:"
+range.values = [1,2,3,4,5]
+input.variable = "age"
+next = 4
 
 [node.3]
-message = "Ты выбрал да!"
+input.text = "Пожалуйста, напишите ваш вес!"
+input.type = "number"
+input.variable = "weight"
+next = 4
+
+[node.4]
+message = "Спасибо!"
 end = true
