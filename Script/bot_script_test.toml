@@ -1,0 +1,23 @@
+# Этот файл представляет собой сценарий работы телеграм-бота
+title = "Test script"
+last-modification = "2025.06.29.11:00"
+
+[node.start]
+message = "Привет!"
+wait = 1
+next = "1"
+
+[node.1]
+message = "Выбери вариант ответа:"
+buttons = [
+    ["no", "2"],
+    ["yes", "3"],
+]
+
+[node.2]
+message = "Ты выбрал нет!"
+end = true
+
+[node.3]
+message = "Ты выбрал да!"
+end = true
