@@ -7,6 +7,15 @@ age = 0
 height = 0
 weight = 0
 
+[technical.on_reload]
+message = 'Бот был перезагружен! Если вы были в каком-то сценарии, то сейчас вам надо будет запустить его заново.'
+
+[technical.on_no_script]
+message = 'Извините! У меня сейчас не запущен ни один сценарий!'
+
+[technical.on_out_of_scenary]
+message = 'Извините, но я не умею отвечать на сообщения выходящие за рамки сценария.'
+
 [node.start]
 message = '''
 Привет!
@@ -25,14 +34,14 @@ choice.answers = [
 [node.2]
 range.text = "Пожалуйста выбери уровень:"
 range.values = [1,2,3,4,5]
-input.variable = "age"
-next = 4
+range.variable = "age"
+range.next = 4
 
 [node.3]
 input.text = "Пожалуйста, напишите ваш вес!"
 input.type = "number"
 input.variable = "weight"
-next = 4
+input.next = 4
 
 [node.4]
 message = "Спасибо!"

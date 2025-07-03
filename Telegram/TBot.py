@@ -15,6 +15,9 @@ class TBot:
 
         if kwarg.get("use_sessions", False):
             self._session_manager = SessionsManager(folder=os.path.join(self._working_directory, "sessions"))
+            self._global = self._session_manager.get_session("global")
+            if "users" not in self._global:
+                self._global["users"] = {}
 
         self._handlers = []
         self._command_handler = None
@@ -39,6 +42,10 @@ class TBot:
         self._update_handler = None
         self._after_messages_handled = None
         self._after_update = None
+
+    @property
+    def global_session(self):
+        return self._global
 
     # setup ========================================================================== #
 
@@ -87,8 +94,19 @@ class TBot:
             'text': text
         }
         if buttons is not None:
+            def prepare_button(button):
+                if isinstance(button, str):
+                    return {"text": button, "callback_data": button}
+                elif isinstance(button, list):
+                    return {"text": button[0], "callback_data": button[1]}
+                elif isinstance(button, dict):
+                    return button
+                elif isinstance(button, int):
+                    return str(button)
+                else:
+                    raise Exception(f"Unknown button format: {button}")
             payload["reply_markup"] = json.dumps({
-                "inline_keyboard": [[{"text": btn, "callback_data": btn} for btn in line] for line in buttons]
+                "inline_keyboard": [[prepare_button(btn) for btn in line] for line in buttons]
             })
 
         return self._call('sendMessage', payload)
@@ -127,6 +145,11 @@ class TBot:
             return None
         return self._session_manager.get_session(sid)
 
+    def save_session(self, sid):
+        if self._session_manager is None:
+            return
+        self._session_manager.save_session(sid)
+
     def run(self):
         data = self._call("deleteWebhook")
         print(data)
@@ -149,12 +172,22 @@ class TBot:
                         frames.add((message['from']['id'], message['chat']['id']))
                         for handler in self._handlers:
                             handler.handle(message)
-                        session = self.get_session(message["from"]["id"])
+                        user_id = message["from"]["id"]
+                        if user_id not in self._global["users"]:
+                            # Хз пока, какую глобальную дату о юзерах надо будет хранить кроме их айдишников
+                            self._global["users"][user_id] = {}
+                        session = self.get_session(user_id)
                         self._message_handler(message, session)
+                        self.save_session(user_id)
                     if "callback_query" in update and self._callback_handler is not None:
                         query = update["callback_query"]
-                        session = self.get_session(query["from"]["id"])
+                        user_id = query["from"]["id"]
+                        if user_id not in self._global["users"]:
+                            # Хз пока, какую глобальную дату о юзерах надо будет хранить кроме их айдишников
+                            self._global["users"][user_id] = {}
+                        session = self.get_session(user_id)
                         self._callback_handler(query, session)
+                        self.save_session(user_id)
                     elif self._update_handler is not None:
                         self._update_handler(update)
 
