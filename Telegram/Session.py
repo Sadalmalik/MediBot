@@ -8,8 +8,7 @@ class SessionsManager:
         self._sessions = {}
         self._memorytime = kwargs.get("memorytime", 60*10)
         self._folder = kwargs.get("folder", "sessions")
-        if not os.path.exists(self._folder):
-            os.makedirs(self._folder)
+        os.makedirs(self._folder, exist_ok=True)
 
     def get_session(self, sid) -> dict:
         if sid in self._sessions:
@@ -28,12 +27,14 @@ class SessionsManager:
         return session["data"]
 
     def save_session(self, sid):
+        print(f"save_session a: {sid}")
         if sid in self._sessions:
             session = self._sessions[sid]
+            print(f"save_session b: {session}")
             file = os.path.join(self._folder, f"{sid}.json")
-            if os.path.exists(file):
-                with open(file, "w", encoding="utf8") as f:
-                    json.dump(session["data"], f, indent=2)
+            print(f"save_session c: {file}")
+            with open(file, "w", encoding="utf8") as f:
+                json.dump(session["data"], f, indent=2)
 
     def update(self):
         curr_time = datetime.datetime.now()
@@ -42,9 +43,8 @@ class SessionsManager:
             if curr_time < session["time"]:
                 continue
             file = os.path.join(self._folder, f"{sid}.json")
-            if os.path.exists(file):
-                with open(file, "w", encoding="utf8") as f:
-                    json.dump(session["data"], f, indent=2)
+            with open(file, "w", encoding="utf8") as f:
+                json.dump(session["data"], f, indent=2)
             self._sessions[sid] = None
             del self._sessions[sid]
 

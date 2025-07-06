@@ -1,0 +1,92 @@
+# Этот файл представляет собой сценарий работы телеграм-бота
+title = "Test script"
+version = "0.1"
+last-modification = "2025.06.29.11:00"
+commands = ["start", "help"]
+
+[variables]
+age = "number"
+height = "number"
+weight = "number"
+
+[node.help]
+type = "message"
+text = 'Помощь пока не оказываю'
+
+[node.start]
+type = "message"
+text = '''
+Привет!
+Я волшебный бот!
+'''
+next = "1"
+
+[node.1]
+type = "wait"
+time = 5
+next = "2"
+
+[node.2]
+type = "choice"
+text = "Выбери вариант ответа:"
+answers = [
+    ["no", "3"],
+    ["yes", "4"],
+]
+
+[node.3]
+type = "range"
+text = "Пожалуйста выбери уровень:"
+values = [1,2,3,4,5]
+variable = "age"
+next = "5"
+
+[node.4]
+type = "input"
+text = "Пожалуйста, напишите ваш вес!"
+variable = "weight"
+next = "5"
+
+[node."5"]
+type = "message"
+text = '''
+Спасибо!
+
+Ваши данные:
+вес: {weight}
+озраст: {age}
+'''
+next = "6"
+
+[node.6]
+type = "message"
+text = "Отлично!"
+next = "7"
+
+[node.7]
+type = "condition"
+conditions = [
+    ["weight > 100", "8"]
+]
+default = "9"
+
+[node.7]
+type = "calculate"
+expressions = [
+    ["variable", "5 + 7"]
+]
+next = "9"
+
+[node.8]
+type = "message"
+text = 'Вы чо-то очень толстый!'
+
+[node.9]
+type = "message"
+text = 'А вы еще очень ничего!'
+
+[node.10]
+type = "end"
+
+[node.example_send_form]
+type = "send_form"

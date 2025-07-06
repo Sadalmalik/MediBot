@@ -10,6 +10,7 @@ class ImagesHandler(BaseHandler):
         self._photo_handler = None
         self._photo_complete_handler = None
         self._download_path = kwargs.get("folder", "downloads")
+        os.makedirs(self._download_path, exist_ok=True)
 
     def on_photo(self, func):
         if self._photo_handler is not None:
