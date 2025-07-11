@@ -11,37 +11,42 @@ from Scripting import ScriptableStateMachine, format_text
 # message - пользователь прислал сообщение
 
 class ScriptedBot:
-    def __init__(self, bot_token: str, working_directory: str, script_path: str, force_admins: list[str]):
+    def __init__(self, bot_token: str, working_directory: str, script_path: str):
         self._eval = ExpressionEvaluator()
 
         self._bot = TBot(bot_token, working_directory=working_directory, use_sessions=True)
         self._bot.on_message(self.handle_telegram_message)
         self._bot.on_callback(self.handle_telegram_callback)
+        self._bot.on_poll(self.handle_telegram_poll)
 
-        for uid in force_admins:
-            self._bot.global_session["users"][uid] = {"is_admin": True}
         self._script = ScriptableStateMachine(script_path)
         self._script.add_handler("end", ["start"], self.end_node_handler)
         self._script.add_handler("wait", ["start"], self.wait_node_handler)
         self._script.add_handler("message", ["start"], self.message_node_handler)
         self._script.add_handler("choice", ["start", "button"], self.choice_node_handler)
+        self._script.add_handler("selection", ["start", "poll"], self.selection_node_handler)
         self._script.add_handler("range", ["start", "button"], self.range_node_handler)
         self._script.add_handler("input", ["start", "message"], self.input_node_handler)
         self._script.add_handler("condition", ["start"], self.condition_node_handler)
         self._script.add_handler("calculate", ["start"], self.calculation_node_handler)
-        self._script.add_handler("send_form", ["start"], self.send_node_handler())
+        self._script.add_handler("send_form", ["start"], self.send_node_handler)
 
     def run(self):
-        for user in self._bot.global_session["users"]:
-            user_session = self._bot.get_session(user)
-            user_context = self._get_context(user_session)
-            self._script.technical_event(user_context, "on_reload", "start", None)
+        for sid in self._bot.global_session['sessions']:
+            context = self._bot.get_session(sid)
+            self._script.init_context(context=context)
+            self._script.technical_event(context, "on_reload", "technical", None)
 
             # restart timers in case bot was reloaded during some timers
-            node = self._script[user_context["node"]]
-            if "waiting" in user_context and node["type"] == "wait":
-                del user_context["waiting"]
-                self._script.event(user_context, "start", None)
+            node = self._script[context["node"]]
+            if "waiting" in context and node["type"] == "wait":
+                del context["waiting"]
+                self._script.event(context, "start", None)
+
+            # clear polls
+            polls = self._bot.get_all_polls_from_chat(context["chat"]["id"])
+            for data in polls:
+                self._bot.stop_poll(context["chat"]["id"], data['message_id'])
 
         self._bot.run()
 
@@ -49,30 +54,26 @@ class ScriptedBot:
     # region: Telegram bindings ----------------------------------------------------
     # ------------------------------------------------------------------------------
 
-    def _get_context(self, session):
-        if "context" not in session:
-            context = self._script.create_context()
-            session["context"] = context
-            context["chat_id"] = session["sid"]
-            context["username"] = session["username"]
-        return session["context"]
-
     def handle_telegram_message(self, message, session):
-        context = self._get_context(session)
+        self._script.init_context(context=session)
         text = message["text"].strip()
         if text.startswith("/"):
             command = text[1:].split()[0]
             if self._script.is_command_allowed(command):
-                self._script.goto(context, command)
+                self._script.goto(session, command)
             else:
-                self._script.technical_event(context, "unknown_command", "start", None)
+                self._script.technical_event(session, "unknown_command", "start", None)
         else:
-            self._script.event(context, "message", text)
+            self._script.event(session, "message", text)
 
     def handle_telegram_callback(self, callback, session):
-        context = self._get_context(session)
+        self._script.init_context(context=session)
         data = callback["data"]
-        self._script.event(context, "button", data)
+        self._script.event(session, "button", data)
+
+    def handle_telegram_poll(self, poll, session):
+        self._script.init_context(context=session)
+        self._script.event(session, "poll", poll)
 
     # ------------------------------------------------------------------------------
     # region: script nodes ---------------------------------------------------------
@@ -88,8 +89,8 @@ class ScriptedBot:
         if event != "start":
             return
 
-        if "show_status" in step and step["show_status"]:
-            self._bot.senf_action("typing ")
+        if step.get('show_status', False):
+            self._bot.send_action(context["chat"]["id"], "typing")
 
         def on_timeout():
             del context["waiting"]
@@ -100,23 +101,24 @@ class ScriptedBot:
         t.start()
 
     def message_node_handler(self, runner, context, step, event, data):
-        if event != "start":
+        if event not in ["start", "technical"]:
             return
 
         message = step["text"]
-        self._bot.send(context["chat_id"], format_text(message, context))
-        self._script.goto(context, step["next"])
+        self._bot.send(context["chat"]["id"], format_text(message, context))
+        if event == "start":
+            self._script.goto(context, step["next"])
 
     def choice_node_handler(self, runner, context, step, event, value):
         text = format_text(step["text"], context)
         answers = step["answers"]
         if event == "start":
-            message = self._bot.send_question(context["chat_id"], text, [answers])
+            message = self._bot.send_question(context["chat"]["id"], text, [answers])
             context["last_message_id"] = message["result"]["message_id"]
         elif event == "button":
             for answer in answers:
                 if answer[1] == value:
-                    self._bot.edit_message(context["chat_id"], context["last_message_id"], f"{text}\n\n-- {answer[0]}", None)
+                    self._bot.edit_message(context["chat"]["id"], context["last_message_id"], f"{text}\n\n-- {answer[0]}", None)
                     del context["last_message_id"]
                     self._script.goto(context, answer[1])
                     return
@@ -124,19 +126,37 @@ class ScriptedBot:
     def range_node_handler(self, runner, context, step, event, value):
         text = format_text(step["text"], context)
         if event == "start":
-            message = self._bot.send_question(context["chat_id"], text, [step["values"]])
+            message = self._bot.send_question(context["chat"]["id"], text, [step["values"]])
             context["last_message_id"] = message["result"]["message_id"]
         elif event == "button":
             result = int(value)
             context["variables"][step["variable"]] = result
-            self._bot.edit_message(context["chat_id"], context["last_message_id"], f"{text}\n\n-- {result}", None)
+            self._bot.edit_message(context["chat"]["id"], context["last_message_id"], f"{text}\n\n-- {result}", None)
             del context["last_message_id"]
+            self._script.goto(context, step["next"])
+
+    def selection_node_handler(self, runner, context, step, event, poll):
+        if event == "start":
+            text = format_text(step["text"], context)
+            options = [option[0] for option in step['options']]
+            multiple = step.get('multiple', False)
+            message = self._bot.send_poll(context["chat"]["id"], text, options, multiple)
+            context["last_message_id"] = message["result"]["message_id"]
+        elif event == "poll":
+            for poll_option in poll['options']:
+                text = poll_option['text']
+                count = poll_option['voter_count']
+                for option in step['options']:
+                    if option[0] == text and option[1]:
+                        var = option[1]
+                        context["variables"][var] += count
+            self._bot.stop_poll(poll['chat']['id'], poll['message_id'])
             self._script.goto(context, step["next"])
 
     def input_node_handler(self, runner, context, step, event, value: str):
         text = format_text(step["text"], context)
         if event == "start":
-            message = self._bot.send(context["chat_id"], text)
+            message = self._bot.send(context["chat"]["id"], text)
             context["last_message_id"] = message["result"]["message_id"]
         elif event == "message":
             result = None

@@ -17,11 +17,11 @@ class ScriptableStateMachine:
         with open(script_file_path, "r", encoding="utf8") as script_in:
             self._script = toml.load(script_in)
             self._nodes = self._script["node"]
-            self._technical = self._script["technical"]
-        print(f"Script:\n\n{json.dumps(self._script, indent=2)}\n\n")
+            self._technical = self._script.get("technical", None) or {}
+        # print(f"Script:\n\n{json.dumps(self._script, indent=2)}\n\n")
         self._handlers = {}
 
-    def create_context(self):
+    def init_context(self, **kwargs):
         variables = {}
         if "variables" in self._script:
             for var, var_type in self._script["variables"].items():
@@ -31,10 +31,22 @@ class ScriptableStateMachine:
                     variables[var] = 0
                 if var_type == "bool":
                     variables[var] = False
-        return {
-            "node": None,
-            "variables": variables
-        }
+        context = kwargs.get("context", None) or {}
+        context['node'] = None
+        context['variables'] = variables
+        return context
+
+    def validate_variables_context(self, context):
+        variables = context['variables']
+        if "variables" in self._script:
+            for var, var_type in self._script["variables"].items():
+                if var not in variables:
+                    if var_type == "string":
+                        variables[var] = ''
+                    if var_type == "number":
+                        variables[var] = 0
+                    if var_type == "bool":
+                        variables[var] = False
 
     def get_variable_type(self, variable):
         return self._script["variables"][variable]
@@ -66,10 +78,10 @@ class ScriptableStateMachine:
             raise Exception(f"No handlers defined for '{node_type}'")
         events, handler = self._handlers[node_type]
         if event in events:
-            try:
+            # try:
                 handler(self, context, node, event, data)
-            except Exception as e:
-                print(f"Exception in handler: {node_type}\n{e}")
+            # except Exception as e:
+            #     print(f"Exception in handler: {node_type}\n{e}")
 
     def goto(self, context, node_id):
         node = self[node_id]

@@ -75,3 +75,145 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+F:\PROGRAMMING\python\MediBot\.venv\Scripts\python.exe F:\PROGRAMMING\python\MediBot\App.py
+send_poll:
+payload:
+{
+  "chat_id": "820216855",
+  "question": "\u0432\u043e\u043f\u0440\u043e\u0441",
+  "options": "[{\"text\": \"\\u041e\\u0442\\u0432\\u0435\\u0442 1\"}, {\"text\": \"\\u041e\\u0442\\u0432\\u0435\\u0442 2\"}, {\"text\": \"\\u041e\\u0442\\u0432\\u0435\\u0442 3\"}]",
+  "allows_multiple_answers": true
+}
+response:
+{
+  "ok": true,
+  "result": {
+    "message_id": 266,
+    "from": {
+      "id": 7463392751,
+      "is_bot": true,
+      "first_name": "TestCheckUpBot",
+      "username": "MySecretTestCheckUpBot"
+    },
+    "chat": {
+      "id": 820216855,
+      "first_name": "\u0413\u043b\u0435\u0431",
+      "last_name": "\u041a\u0443\u0437\u044c\u043c\u0438\u043d",
+      "username": "kaleb_sadalmalik",
+      "type": "private"
+    },
+    "date": 1752047924,
+    "poll": {
+      "id": "5436298775524020294",
+      "question": "\u0432\u043e\u043f\u0440\u043e\u0441",
+      "options": [
+        {
+          "text": "\u041e\u0442\u0432\u0435\u0442 1",
+          "voter_count": 0
+        },
+        {
+          "text": "\u041e\u0442\u0432\u0435\u0442 2",
+          "voter_count": 0
+        },
+        {
+          "text": "\u041e\u0442\u0432\u0435\u0442 3",
+          "voter_count": 0
+        }
+      ],
+      "total_voter_count": 0,
+      "is_closed": false,
+      "is_anonymous": true,
+      "type": "regular",
+      "allows_multiple_answers": true
+    }
+  }
+}
+
+{'ok': True, 'result': True, 'description': 'Webhook is already deleted'}
+poll:
+{
+  "id": "5436298775524020294",
+  "question": "\u0432\u043e\u043f\u0440\u043e\u0441",
+  "options": [
+    {
+      "text": "\u041e\u0442\u0432\u0435\u0442 1",
+      "voter_count": 0
+    },
+    {
+      "text": "\u041e\u0442\u0432\u0435\u0442 2",
+      "voter_count": 0
+    },
+    {
+      "text": "\u041e\u0442\u0432\u0435\u0442 3",
+      "voter_count": 1
+    }
+  ],
+  "total_voter_count": 1,
+  "is_closed": false,
+  "is_anonymous": true,
+  "type": "regular",
+  "allows_multiple_answers": true,
+  "message_id": 266,
+  "chat": {
+    "id": 820216855,
+    "first_name": "\u0413\u043b\u0435\u0431",
+    "last_name": "\u041a\u0443\u0437\u044c\u043c\u0438\u043d",
+    "username": "kaleb_sadalmalik",
+    "type": "private"
+  }
+}
+poll:
+{
+  "id": "5436298775524020294",
+  "question": "\u0432\u043e\u043f\u0440\u043e\u0441",
+  "options": [
+    {
+      "text": "\u041e\u0442\u0432\u0435\u0442 1",
+      "voter_count": 0
+    },
+    {
+      "text": "\u041e\u0442\u0432\u0435\u0442 2",
+      "voter_count": 0
+    },
+    {
+      "text": "\u041e\u0442\u0432\u0435\u0442 3",
+      "voter_count": 1
+    }
+  ],
+  "total_voter_count": 1,
+  "is_closed": true,
+  "is_anonymous": true,
+  "type": "regular",
+  "allows_multiple_answers": true
+}
+
+Process finished with exit code -1
+
+
+
+
+
+
+
+
+
+
+

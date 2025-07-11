@@ -27,12 +27,9 @@ class SessionsManager:
         return session["data"]
 
     def save_session(self, sid):
-        print(f"save_session a: {sid}")
         if sid in self._sessions:
             session = self._sessions[sid]
-            print(f"save_session b: {session}")
             file = os.path.join(self._folder, f"{sid}.json")
-            print(f"save_session c: {file}")
             with open(file, "w", encoding="utf8") as f:
                 json.dump(session["data"], f, indent=2)
 
