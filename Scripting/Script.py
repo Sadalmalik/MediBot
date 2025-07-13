@@ -1,4 +1,5 @@
 import json
+import traceback
 from threading import Timer
 
 from Scripting import toml
@@ -13,27 +14,31 @@ def format_text(text, context):
 
 
 class ScriptableStateMachine:
-    def __init__(self, script_file_path):
+    def __init__(self, script_file_path, no_script=None):
         with open(script_file_path, "r", encoding="utf8") as script_in:
             self._script = toml.load(script_in)
             self._nodes = self._script["node"]
             self._technical = self._script.get("technical", None) or {}
         # print(f"Script:\n\n{json.dumps(self._script, indent=2)}\n\n")
         self._handlers = {}
+        self._no_script = no_script
 
     def init_context(self, **kwargs):
-        variables = {}
+        context = kwargs.get("context", None) or {}
+        variables = context.get("variables", None) or {}
+        print(f"init_context: {len(variables)} vars")
         if "variables" in self._script:
             for var, var_type in self._script["variables"].items():
-                if var_type == "string":
-                    variables[var] = ''
-                if var_type == "number":
-                    variables[var] = 0
-                if var_type == "bool":
-                    variables[var] = False
-        context = kwargs.get("context", None) or {}
-        context['node'] = None
+                if var not in variables:
+                    if var_type == "string":
+                        variables[var] = ''
+                    if var_type == "number":
+                        variables[var] = 0
+                    if var_type == "bool":
+                        variables[var] = False
         context['variables'] = variables
+        if "node" not in context:
+            context['node'] = None
         return context
 
     def validate_variables_context(self, context):
@@ -57,6 +62,7 @@ class ScriptableStateMachine:
         self._handlers[node_type] = (events, handler)
 
     def __getitem__(self, node_id):
+        print(f"get node: {node_id}")
         if node_id in self._nodes:
             return self._nodes[node_id]
         return None
@@ -87,13 +93,17 @@ class ScriptableStateMachine:
         node = self[node_id]
         if node is None:
             node_id = None
+        print(f"goto node: {node_id}")
         context["node"] = node_id
         if node_id is None:
             return
         self.event(context, "start", None)
 
     def event(self, context, event, data):
-        node = self[context["node"]]
+        node_id = context["node"]
+        if node_id is None:
+            node_id = self._no_script
+        node = self[node_id]
         self._call_event(context, node, event, data)
 
     def technical_event(self, context, node_id, event, data):

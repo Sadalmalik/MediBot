@@ -6,6 +6,9 @@ commands = ["start", "help"]
 
 [variables]
 poll_1_symptoms = "number"
+var_data_collected = "bool"
+
+# profile
 var_age = "number"
 var_height = "number"
 var_weight = "number"
@@ -18,8 +21,16 @@ var_diabetes = "number"
 var_stroke = "number"
 var_job = "number"
 var_check = "number"
-var_score_total = "number"
+
 var_bmi = "number"
+var_score_total = "number"
+
+# AMS
+var_ams_1 = "number"
+var_ams_2 = "number"
+var_ams_3 = "number"
+var_ams_4 = "number"
+var_ams_5 = "number"
 
 
 
@@ -65,52 +76,44 @@ text = '''
 Привет!
 Я чекап-бот и моя задача задать тебя ряд вопросов для определения, нужен ли тебе чекап, и, если да, то на сколько срочно, а так же собрать о тебе необходимые для чекапа данные.
 
-*Чекап — это комплексная оценка здоровья на фоне ощущения здоровья для оценки своего состояния организма и выявления факторов риска развития болезней или болезней на доклиническом этапе (когда вы ничего не ощущаете).
+Чекап — это комплексная оценка здоровья на фоне ощущения здоровья для оценки своего состояния организма и выявления факторов риска развития болезней или болезней на доклиническом этапе (когда вы ничего не ощущаете).
 '''
-next = "check-up-1"
+next = "pre_check_up_1"
 
-[node.check-up-1]
-type = "wait"
-show_status = true
-time = 0.5
-next = "check-up-2"
-
-[node.check-up-2]
+[node.pre_check_up_1]
 type = "message"
+wait = [0.5, "typing"]
 text = '''
-Я задам тебе три набора вопросов:
+Я задам вам три набора вопросов:
 1. Сначала небольшой опрос, чтобы определить, будет ли чекап эффективен в данный момент
 2. Набор вопросов, чтобы составить твой профиль и оценить необходимость чекапа.
 3. Наконец - вопросы для оценки симптомов старения у мужчин.
 '''
-next = "check-up-3"
+next = "pre_check_up_2"
 
-[node.check-up-3]
-type = "wait"
-show_status = true
-time = 0.5
-next = "check-up-4"
-
-[node.check-up-4]
+[node.pre_check_up_2]
 type = "choice"
+wait = [0.5, "typing"]
 text = 'Готов начать?'
 answers = [
-    ["нет", "check-up-end-1"],
-    ["да", "check-up-5"],
+    ["нет", "end_1"],
+    ["да", "pre_check_up_3"],
 ]
 
-    [node.check-up-end-1]
+    [node.end_1]
     type = "message"
     text = '''
-    Как скажете!
+Как скажете!
 
-    Если вы все же захотите пройти опров - введите /start
-    Если вы хотите узнать подробности о боте - введите /help
+Вы в любое время можете перезапустить этот сценарий отправив мне команы /start
+
+Если вы хотите узнать подробности о боте - введите /help
     '''
-    next = "check-up-end"
+    next = "end"
 
-[node.check-up-5]
+[node.pre_check_up_3]
 type = "selection"
+wait = [0.5, "typing"]
 text = '''
 Выберете один или несколько вариантов.
 
@@ -124,86 +127,79 @@ options =[
     ["Сильное ухудшение самочувствия?", "poll_1_symptoms"],
     ["Ничего из выше перечисленного", ""]
 ]
-next = "check-up-6"
+next = "pre_check_up_4"
 
-[node.check-up-6]
+[node.pre_check_up_4]
 type = "condition"
 conditions = [
-    ["poll_1_symptoms > 0", "check-up-end-2"]
+    ["poll_1_symptoms > 0", "end_2"]
 ]
-default = "check-up-7"
+default = "pre_check_up_5"
 
-    [node.check-up-end-2]
+    [node.end_2]
     type = "message"
+    wait = [0.5, "typing"]
     text = '''
-    К сожалению это означает, что сейчас чекап для вас будет неэффективен.
-    Вам стоит подождать пару-тройку месяцев, пока ваш организм не восстановатся.
-    Возможно вам стоит обратится к врачу.
+К сожалению это означает, что сейчас чекап для вас будет неэффективен.
+
+У вас уже есть симптомы некоторых болезней (даже если сами болезни уже закончились). И если у вас есть еще какие-то скрытые болезни, то их симптомы будут неопределимы на фоне уже имеющихся симптомов.
+
+Вам стоит подождать пару-тройку месяцев, пока ваш организм не восстановатся.
+
+Вы в любое время можете перезапустить этот сценарий отправив мне команы /start
     '''
-    next = "check-up-end"
+    next = "end"
 
-[node.check-up-7]
+[node.pre_check_up_5]
 type = "message"
+wait = [0.5, "typing"]
 text = "Отлично, у вас нет никаких противопоказаний к проведению чекапа!"
-next = "check-up-8"
+next = "profile_1"
 
-[node.check-up-8]
-type = "wait"
-show_status = true
-time = 0.5
-next = "check-up-9"
-
-[node.check-up-9]
+[node.profile_1]
 type = "message"
+wait = [1.5, "typing"]
 text = '''
 Давайте теперь оценим, насколько чекап вам сейчас нужен!
 
 Для этого я должен собрать о вас определенные данные.
 Всего 10 вопросов.
 '''
-next = "check-up-10"
+next = "profile_2"
 
-[node.check-up-10]
-type = "wait"
-show_status = true
-time = 0.5
-next = "check-up-11"
-
-[node.check-up-11]
+[node.profile_2]
 type = "input"
+wait = [0.5, "typing"]
 text = "Вопрос 1/10\nПожалуйста напишите ваш возраст"
 variable = "var_age"
-next = "check-up-12"
+next = "profile_3"
 
-[node.check-up-12]
+[node.profile_3]
 type = "input"
-text = "Вопрос 2/10\nНапишите ваш рост в сантиметрах (одна цифра)"
-variable = "var_age"
-next = "check-up-13"
-
-[node.check-up-13]
-type = "input"
+wait = [0.5, "typing"]
 text = "Вопрос 2/10\nНапишите ваш рост в сантиметрах (одна цифра)"
 variable = "var_height"
-next = "check-up-14"
+next = "profile_4"
 
-[node.check-up-14]
+[node.profile_4]
 type = "input"
+wait = [0.5, "typing"]
 text = "Вопрос 3/10\nНапишите ваш вес в килограммах (одна цифра)"
 variable = "var_weight"
-next = "check-up-15"
+next = "profile_5"
 
-[node.check-up-15]
+[node.profile_5]
 type = "input"
+wait = [0.5, "typing"]
 text = "Вопрос 4/10\nНапишите вашу окружность талии в сантиметрах (одна цифра)"
 variable = "var_round"
-next = "check-up-16"
+next = "profile_6"
 
-[node.check-up-16]
+[node.profile_6]
 type = "range"
+wait = [0.5, "typing"]
 text = '''
 Вопрос 5/10
-Пожалуйста оцените вашу физическую активность:
 Как много шагов вы ходите в день (усредненно)
 '''
 values = [
@@ -213,21 +209,17 @@ values = [
     ["более 9000 шагов", 10000],
 ]
 variable = "var_steps"
-next = "check-up-17"
+next = "profile_7"
 
-[node.check-up-17]
+[node.profile_7]
 type = "message"
+wait = [0.5, "typing"]
 text = "Отлично! Половина пути пройдена!"
-next = "check-up-18"
+next = "profile_8"
 
-[node.check-up-18]
-type = "wait"
-show_status = true
-time = 0.5
-next = "check-up-19"
-
-[node.check-up-19]
+[node.profile_8]
 type = "range"
+wait = [1.0, "typing"]
 text = '''
 Вопрос 6/10
 Оцените, как часто вы занимаетесь спортом/тренируетесь в спортзале?
@@ -239,10 +231,11 @@ values = [
     ["постоянно", 7],
 ]
 variable = "var_sports"
-next = "check-up-20"
+next = "profile_9"
 
-[node.check-up-20]
+[node.profile_9]
 type = "range"
+wait = [0.5, "typing"]
 text = '''
 Вопрос 7/10
 Есть ли проблемы с эрекций?
@@ -254,10 +247,11 @@ values = [
     ["постоянно", 3],
 ]
 variable = "var_erection"
-next = "check-up-21"
+next = "profile_10"
 
-[node.check-up-21]
+[node.profile_10]
 type = "selection"
+wait = [0.5, "typing"]
 text = '''
 Вопрос 8/10
 Есть ли наследственные болезни?
@@ -268,10 +262,11 @@ options =[
     ["Сахарный диабет", "var_diabetes"],
     ["инсульты, инфаркты в возрасте до 55 лет", "var_stroke"]
 ]
-next = "check-up-22"
+next = "profile_11"
 
-[node.check-up-22]
+[node.profile_11]
 type = "range"
+wait = [0.5, "typing"]
 text = '''
 Вопрос 9/10
 У вас сидячая работа? Как долго вы сидите в рабочее время?
@@ -283,10 +278,11 @@ values = [
     ["не сижу", 0],
 ]
 variable = "var_job"
-next = "check-up-23"
+next = "profile_12"
 
-[node.check-up-23]
+[node.profile_12]
 type = "range"
+wait = [0.5, "typing"]
 text = '''
 Вопрос 10/10
 Проходили ли вы чекап в последние три года?
@@ -296,15 +292,16 @@ values = [
     ["да", 1]
 ]
 variable = "var_check"
-next = "check-up-24"
+next = "profile_13"
 
-[node.check-up-24]
+[node.profile_13]
 type = "message"
+wait = [0.5, "typing"]
 text = '''
 Отлично, спасибо!
 Этих данных достаточно что бы оценить вашу потребность в чекапе.
 '''
-next = "check-up-25"
+next = "profile_14"
 
 #var_height = "number"
 #var_weight = "number"
@@ -319,43 +316,69 @@ next = "check-up-25"
 #var_check = "number"
 #var_score_total = "number"
 # Мы собрали все данные - рассчитываем итоговые значения!
-[node.check-up-25]
+[node.profile_14]
 type = "calculate"
+wait = [0.5, "typing"]
 expressions = [
+    ["var_data_collected", "True"],
     ["var_bmi", "var_weight / ( var_height * var_height * 0.0001 )"],
     ["var_score_total", "0"]
 ]
-next = "check-up-26"
+next = "profile_15"
 
-[node.check-up-26]
-type = "condition"
-conditions = [
-    ["var_score_total < 2", "check-up-end-3"],
-    ["var_score_total < 5", "check-up-end-3"]
+[node.profile_15]
+type = "send_form"
+url  = "https://docs.google.com/forms/d/e/1FAIpQLSdVLrc8nkrPhQXyffCHvNR_JokL3Ri1SrGCgMovTzjf7V95Tg/viewform"
+form = [
+    ["entry.2049190339", "@username"],
+    ["entry.1909510680", "var_age"],
+    ["entry.210876095", "var_height"],
+    ["entry.1883094476", "var_weight"],
+    ["entry.1253864560", "var_round"],
+    ["entry.289557824", "var_steps"],
+    ["entry.2127535516", "var_sports"],
+    ["entry.1224265442", "var_erection"],
+    ["entry.2059824086", "var_cancer"],
+    ["entry.267514677", "var_diabetes"],
+    ["entry.1771178035", "var_stroke"],
+    ["entry.1945850213", "var_job"],
+    ["entry.2036286477", "var_check"]
 ]
-default = "check-up-27"
+next = "profile_16"
 
-    [node.check-up-end-3]
+[node.profile_16]
+type = "condition"
+wait = [0.5, "typing"]
+conditions = [
+    ["var_score_total < 2", "end_3"],
+    ["var_score_total < 5", "profile_17"]
+]
+default = "profile_18"
+
+    [node.end_3]
     type = "message"
     text = "Чекап не нужен, организм в балансе. В настоящий момент имеющиеся чекапы здоровья для вас не имеют эффективности по сравнению с потенциальным вредом (гипердиагностика - выявление болезней и состояний, которые никогда не скажутся на вашем здоровье)"
-    next = "check-up-end"
+    next = "end"
 
-[node.check-up-27]
+[node.profile_17]
+type = "message"
 text = '''
-У вас есть факторы риска!
+У вас есть некоторые факторы риска!
 Чекап желателен. Имеются факторы риска, которые, потенциально, при длительном воздействии могут приводить к развитию болезней.
 '''
-next = "check-up-29"
+next = "profile_19"
 
-[node.check-up-28]
+[node.profile_18]
+type = "message"
 text = '''
 У ВАС ЕСТЬ ФАКТОРЫ РИСКА
 Имеются достаточно факторов риска для прохождения чекапов здоровья в ближайшее время. Необходимо вовремя выявить присутствие предболезней, состояний, когда болезнь еще можно дезактивировать.
 '''
-next = "check-up-29"
+next = "profile_19"
 
-[node.check-up-29]
+[node.profile_19]
 type = "choice"
+wait = [0.5, "typing"]
 text = '''
 Если вы хотите продолжить и записаться на чекап - то осталось ответить на еще один небольшой опрос (5 вопросов) для оценки симптомов старения.
 
@@ -364,66 +387,130 @@ text = '''
 Готовы?
 '''
 answers = [
-    ["нет", "check-up-end-1"],
-    ["да", "check-up-5"],
+    ["нет", "end_1"],
+    ["да", "symptoms_1"],
 ]
 
 
-
-
-
-[node.check-up-end]
-type = "end"
-
-
-
-
-
-
-
-
-
-    Чекап не нужен, организм в балансе. В настоящий момент имеющиеся чекапы здоровья для вас не имеют эффективности по сравнению с потенциальным вредом (гипердиагностика - выявление болезней и состояний, которые никогда не скажутся на вашем здоровье)
-
-    У вас есть факторы риска!
-    Чекап желателен. Имеются факторы риска, которые, потенциально, при длительном воздействии могут приводить к развитию болезней.
-
-    У ВАС ЕСТЬ ФАКТОРЫ РИСКА
-    Имеются достаточно факторов риска для прохождения чекапов здоровья в ближайшее время. Необходимо вовремя выявить присутствие предболезней, состояний, когда болезнь еще можно дезактивировать
-
-    ЗАПИСЬ НА ОН-ЛАЙН КОНСУЛЬТАЦИЮ ИЛИ ОЧНЫЙ ОСМОТР ТГ: телеграм Доктор Борисов
-
-
-
-Если вы хотите продолжить и записаться на чекап - то осталось ответить на еще один небольшой опрос (5 вопросов) для оценки симптомов старения.
-
-После этого ваши данные будут направлены доктору и с вами свяжутся.
-
-Готовы?
-да / нет
-
-
-
+[node.symptoms_1]
+type = "message"
+wait = [0.5, "typing"]
+text = '''
 AMS - Оценка симптомов старения у мужчин
+
 На каждый вопрос выберете от 1 до 5 где
 1 - нет симптомов
 2 - лёгкий
 3 - умеренный
 4 - выраженный
 5 - крайне выраженный.
+'''
+next = "symptoms_2"
 
-
+[node.symptoms_2]
+type = "range"
+wait = [0.5, "typing"]
+text = '''
 Вопрос 1/5
 Оцените Общее снижение самочувствия (физического/эмоционального)
+'''
+values = [1,2,3,4,5]
+variable = "var_ams_1"
+next = "symptoms_3"
 
+[node.symptoms_3]
+type = "range"
+wait = [0.5, "typing"]
+text = '''
 Вопрос 2/5
 Оцените Тревожность, раздражительность, напряжение.
+'''
+values = [1,2,3,4,5]
+variable = "var_ams_2"
+next = "symptoms_4"
 
+[node.symptoms_4]
+type = "range"
+wait = [0.5, "typing"]
+text = '''
 Вопрос 3/5
 Оцените Усталость, снижение энергии, упадок сил.
+'''
+values = [1,2,3,4,5]
+variable = "var_ams_3"
+next = "symptoms_5"
 
+[node.symptoms_5]
+type = "range"
+wait = [0.5, "typing"]
+text = '''
 Вопрос 4/5
 Оцените Снижение концентрации, памяти, умственных способностей.
+'''
+values = [1,2,3,4,5]
+variable = "var_ams_4"
+next = "symptoms_6"
 
+[node.symptoms_6]
+type = "range"
+wait = [0.5, "typing"]
+text = '''
 Вопрос 5/5
 Оцените Подавленность, плохое настроение.
+'''
+values = [1,2,3,4,5]
+variable = "var_ams_5"
+next = "symptoms_7"
+
+[node.symptoms_7]
+type = "message"
+wait = [0.5, "typing"]
+text = '''
+Отлично!
+
+Вот какие данные я собрал:
+
+poll_1_symptoms = {poll_1_symptoms}
+var_data_collected = {aaaaaaaaaaaa}
+var_age = {var_age}
+var_height = {var_height}
+var_weight = {var_weight}
+var_round = {var_round}
+var_steps = {var_steps}
+var_sports = {var_sports}
+var_erection = {var_erection}
+var_cancer = {var_cancer}
+var_diabetes = {var_diabetes}
+var_stroke = {var_stroke}
+var_job = {var_job}
+var_check = {var_check}
+var_bmi = {var_bmi}
+var_score_total = {var_score_total}
+var_ams_1 = {var_ams_1}
+var_ams_2 = {var_ams_2}
+var_ams_3 = {var_ams_3}
+var_ams_4 = {var_ams_4}
+var_ams_5 = {var_ams_5}
+'''
+next = "symptoms_8"
+
+[node.symptoms_8]
+type = "message"
+wait = [0.5, "typing"]
+text = '''
+Тестовый сценарий завершен!
+
+Спасибо что воспользовались нашим ботом!
+'''
+next = "end"
+
+
+
+
+[node.end]
+type = "end"
+
+
+
+
+

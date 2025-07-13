@@ -171,7 +171,6 @@ class TBot:
                     'poll': result['poll']
                 }
                 self.save_global_session()
-        print(f"send_poll:\npayload:\n{json.dumps(payload, indent=2)}\nresponse:\n{json.dumps(response, indent=2)}\n")
         return response
 
     def stop_poll(self, chat_id, message_id):
@@ -221,6 +220,20 @@ class TBot:
                 data['poll_id'] = poll_id
                 result.append(data)
         return result
+
+    def cleanup_updates(self):
+        data = self._call("getUpdates", {
+            "offset": self._update,
+            "timeout": self._timeout
+        })
+        for update in data["result"]:
+            idx = update["update_id"]
+            if self._update <= idx:
+                self._update = idx + 1
+        self._call("getUpdates", {
+            "offset": self._update,
+            "timeout": self._timeout
+        })
 
     def run(self):
         data = self._call("deleteWebhook")
