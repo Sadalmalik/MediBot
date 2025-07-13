@@ -236,17 +236,18 @@ class ScriptedBot:
     def send_form_node_handler(self, runner, context, step, event, value: str):
         def handler():
             data = {}
+            username = context["chat"]["username"]
             for item in step['form']:
                 field, variable = item
                 if variable == "@username":
-                    data[field] = context["chat"]["username"]
+                    data[field] = username
                 else:
                     data[field] = context["variables"][variable]
             response = requests.post(step['url'], data=data)
             if response.status_code == 200:
-                print("Form submitted successfully!")
+                print(f"Form submitted successfully: {username}")
             else:
-                print(f"Failed to submit form. Status code: {response.status_code}")
+                print(f"Failed to submit form: {username}. Status code: {response.status_code}")
             self._script.goto(context, step["next"])
         self.event_delay(context, step, event, handler)
 

@@ -146,7 +146,6 @@ class TBot:
                     raise Exception(f"Unknown button format: {button}")
 
             keyboard = [[prepare_button(btn) for btn in line] for line in buttons]
-            print(keyboard)
             payload["reply_markup"] = json.dumps({
                 "inline_keyboard": keyboard
             })
