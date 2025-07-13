@@ -136,22 +136,20 @@ class ScriptedBot:
         self.event_delay(context, step, event, handler)
 
     def choice_node_handler(self, runner, context, step, event, value):
-        print("choice_node_handler A")
-
         def handler():
-            print("choice_node_handler B")
             text = format_text(step["text"], context)
             answers = step["answers"]
             if event == "start":
-                print("choice_node_handler C")
                 message = self._bot.send_question(context["chat"]["id"], text, [answers])
                 context["last_message_id"] = message["result"]["message_id"]
             elif event == "button":
-                print("choice_node_handler D")
                 for answer in answers:
                     if answer[1] == value:
-                        self._bot.edit_message(context["chat"]["id"], context["last_message_id"],
-                                               f"{text}\n\n-- {answer[0]}", None)
+                        self._bot.edit_message(
+                            context["chat"]["id"],
+                            context["last_message_id"],
+                            # TODO: хардкод - плохо. Надо в будущем думать над системами локализации ботов
+                            f"{text.rstrip()}\n\nВаш ответ: {answer[0]}", None)
                         del context["last_message_id"]
                         self._script.goto(context, answer[1])
                         return
@@ -166,7 +164,10 @@ class ScriptedBot:
             elif event == "button":
                 result = int(value)
                 context["variables"][step["variable"]] = result
-                self._bot.edit_message(context["chat"]["id"], context["last_message_id"], f"{text}\n\n-- {result}", None)
+                self._bot.edit_message(
+                    context["chat"]["id"],
+                    context["last_message_id"],
+                    f"{text.rstrip()}\n\nВаш ответ: {result}", None)
                 del context["last_message_id"]
                 self._script.goto(context, step["next"])
         self.event_delay(context, step, event, handler)
@@ -215,7 +216,6 @@ class ScriptedBot:
     def condition_node_handler(self, runner, context, step, event, value: str):
         def handler():
             for cond in step["conditions"]:
-                print(f"condition: {cond}")
                 result = self._eval(cond[0], context['variables'])
                 if result:
                     self._script.goto(context, cond[1])

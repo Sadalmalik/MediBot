@@ -322,13 +322,13 @@ wait = [0.5, "typing"]
 expressions = [
     ["var_data_collected", "True"],
     ["var_bmi", "var_weight / ( var_height * var_height * 0.0001 )"],
-    ["var_score_total", "0"]
+    ["var_score_total", "10"]
 ]
 next = "profile_15"
 
 [node.profile_15]
 type = "send_form"
-url  = "https://docs.google.com/forms/d/e/1FAIpQLSdVLrc8nkrPhQXyffCHvNR_JokL3Ri1SrGCgMovTzjf7V95Tg/viewform"
+url  = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSdVLrc8nkrPhQXyffCHvNR_JokL3Ri1SrGCgMovTzjf7V95Tg/formResponse"
 form = [
     ["entry.2049190339", "@username"],
     ["entry.1909510680", "var_age"],
@@ -462,7 +462,30 @@ values = [1,2,3,4,5]
 variable = "var_ams_5"
 next = "symptoms_7"
 
+# <div jsname="o6bZLc">
+# <input type="hidden" name="entry.893737562" value="имя">
+# <input type="hidden" name="entry.1849799186" value="2">
+# <input type="hidden" name="entry.1947250325" value="3">
+# <input type="hidden" name="entry.1729075448" value="3">
+# <input type="hidden" name="entry.855973916" value="3">
+# <input type="hidden" name="entry.414445729" value="3">
+# <input type="hidden" name="dlut" value="1752419877012">
+# </div>
+
 [node.symptoms_7]
+type = "send_form"
+url = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSeZ-WPyFGLOEZUZ92iM3SYWIJ9odi8p0bwNxO5R5dhjLLB9qQ/formResponse"
+form = [
+    ["entry.893737562", "@username"],
+    ["entry.1849799186", "var_ams_1"],
+    ["entry.1947250325", "var_ams_2"],
+    ["entry.1729075448", "var_ams_3"],
+    ["entry.855973916", "var_ams_4"],
+    ["entry.414445729", "var_ams_5"]
+]
+next = "symptoms_8"
+
+[node.symptoms_8]
 type = "message"
 wait = [0.5, "typing"]
 text = '''
@@ -492,9 +515,9 @@ var_ams_3 = {var_ams_3}
 var_ams_4 = {var_ams_4}
 var_ams_5 = {var_ams_5}
 '''
-next = "symptoms_8"
+next = "symptoms_9"
 
-[node.symptoms_8]
+[node.symptoms_9]
 type = "message"
 wait = [0.5, "typing"]
 text = '''

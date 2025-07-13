@@ -26,7 +26,6 @@ class ScriptableStateMachine:
     def init_context(self, **kwargs):
         context = kwargs.get("context", None) or {}
         variables = context.get("variables", None) or {}
-        print(f"init_context: {len(variables)} vars")
         if "variables" in self._script:
             for var, var_type in self._script["variables"].items():
                 if var not in variables:
@@ -62,9 +61,9 @@ class ScriptableStateMachine:
         self._handlers[node_type] = (events, handler)
 
     def __getitem__(self, node_id):
-        print(f"get node: {node_id}")
         if node_id in self._nodes:
             return self._nodes[node_id]
+        print(f"node not found: {node_id}")
         return None
 
     def is_command_allowed(self, command: str):
@@ -93,7 +92,6 @@ class ScriptableStateMachine:
         node = self[node_id]
         if node is None:
             node_id = None
-        print(f"goto node: {node_id}")
         context["node"] = node_id
         if node_id is None:
             return
