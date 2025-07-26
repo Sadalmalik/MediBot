@@ -336,7 +336,7 @@ expressions = [
     ["var_data_collected", "True"],
     ["var_bmi", "var_weight / ( var_height * var_height * 0.0001 )"],
     ["var_score_total", "var_score_total + var_age / 10 - 2"],
-    ["var_score_total", "var_score_total + max(0, (var_bmi - 25) / 2)"],
+    ["var_score_total", "var_score_total + (var_bmi - 25) / 2"],
     ["var_score_total", "var_score_total + var_steps + var_sports + var_erection"],
     ["var_score_total", "var_score_total + 2 * (var_cancer * var_diabetes * var_stroke)"],
     ["var_score_total", "var_score_total + var_job + var_check"]
@@ -521,12 +521,15 @@ text = '''
 Спорт: {var_sports}
 Проблемы с эрекцией: {var_erection}
 
-Рак: {var_cancer}
-Диабер: {var_diabetes}
-Сердечные приступы: {var_stroke}
+Наследственность:
+ Рак: {var_cancer}
+ Диабет: {var_diabetes}
+ Сердечные приступы: {var_stroke}
 
 Работа: {var_job}
 Были чекапы: {var_check}
+
+---
 
 Анкета AMS:
 

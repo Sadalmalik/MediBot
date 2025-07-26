@@ -132,7 +132,7 @@ class ScriptedBot:
             message = step["text"]
             chat_id = context["chat"]["id"]
             if 'chat_id' in step:
-                chat_id = context["chat"]["id"]
+                chat_id = step["chat_id"]
             self._bot.send(chat_id, format_text(message, context))
             if "next" in step:
                 self._script.goto(context, step["next"])
@@ -215,7 +215,7 @@ class ScriptedBot:
                     if var_type == "string":
                         result = value
                     elif var_type == "number":
-                        m = re.findall(f'[\\d-]+(?:\\.[\\d-]){0,1}', value)
+                        m = re.findall(r'[\d-]+(?:\.[\d-])?', value)
                         result = float(m[0])
                     elif var_type == "bool":
                         result = False
@@ -247,6 +247,7 @@ class ScriptedBot:
             for expression in step["expressions"]:
                 variable = expression[0]
                 val = self._eval(expression[1], context['variables'])
+                print(f"evaluate: {variable} = {expression[1]} = {val}")
                 context["variables"][variable] = val
 
             self._script.goto(context, step["next"])

@@ -225,14 +225,15 @@ class TBot:
             "offset": self._update,
             "timeout": self._timeout
         })
-        for update in data["result"]:
-            idx = update["update_id"]
-            if self._update <= idx:
-                self._update = idx + 1
-        self._call("getUpdates", {
-            "offset": self._update,
-            "timeout": 1
-        })
+        if "result" in data:
+            for update in data["result"]:
+                idx = update["update_id"]
+                if self._update <= idx:
+                    self._update = idx + 1
+            self._call("getUpdates", {
+                "offset": self._update,
+                "timeout": 1
+            })
 
     def run(self):
         data = self._call("deleteWebhook")
