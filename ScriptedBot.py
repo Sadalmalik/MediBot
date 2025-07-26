@@ -170,6 +170,10 @@ class ScriptedBot:
                 context["last_message_id"] = message["result"]["message_id"]
             elif event == "button":
                 result = int(value)
+                for button in step["values"]:
+                    if button[1] == result:
+                        result = button[0]
+                        break
                 context["variables"][step["variable"]] = result
                 self._bot.edit_message(
                     context["chat"]["id"],
