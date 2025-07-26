@@ -55,6 +55,9 @@ text = 'Извините, но я не умею отвечать на сообщ
 type = "message"
 text = 'Извините, но я не знаю такой команды. Попробуйте /start или /help'
 
+[technical.cant_parse]
+type = "message"
+text = 'Извините, но я не смог обработать ваше сообщение'
 
 
 # ==================================================================================================================== #
@@ -191,7 +194,11 @@ next = "profile_5"
 [node.profile_5]
 type = "input"
 wait = [0.5, "typing"]
-text = "Вопрос 4/10\nНапишите вашу окружность талии в сантиметрах (одна цифра)"
+text = """
+Вопрос 4/10\nНапишите вашу окружность талии в сантиметрах (одна цифра)
+
+Видео как измерить талию: https://www.youtube.com/watch?v=rhhThsgqsS4
+"""
 variable = "var_round"
 next = "profile_6"
 
@@ -203,10 +210,9 @@ text = '''
 Как много шагов вы ходите в день (усредненно)
 '''
 values = [
-    ["менее 1000 шагов", 1000],
-    ["3000-5000 шагов", 5000],
-    ["5000-9000 шагов", 9000],
-    ["более 9000 шагов", 10000],
+    ["менее 5000 шагов", 2],
+    ["5000-9000 шагов", 1],
+    ["более 9000 шагов", 0]
 ]
 variable = "var_steps"
 next = "profile_7"
@@ -225,10 +231,9 @@ text = '''
 Оцените, как часто вы занимаетесь спортом/тренируетесь в спортзале?
 '''
 values = [
-    ["никогда", 0],
-    ["1-2 раза в неделю", 2],
-    ["3-5 раз в неделю", 5],
-    ["постоянно", 7],
+    ["никогда", 2],
+    ["1 раз в неделю", 1],
+    ["2 и больше", 0]
 ]
 variable = "var_sports"
 next = "profile_9"
@@ -238,13 +243,11 @@ type = "range"
 wait = [0.5, "typing"]
 text = '''
 Вопрос 7/10
-Есть ли проблемы с эрекций?
+Ухудшилась ли у вас эрекция за последний год?
 '''
 values = [
-    ["никогда", 0],
-    ["редко", 1],
-    ["часто", 2],
-    ["постоянно", 3],
+    ["нет", 0],
+    ["да", 2]
 ]
 variable = "var_erection"
 next = "profile_10"
@@ -259,10 +262,11 @@ text = '''
 (выберите один или несколько ответов)
 '''
 multiple = true
-options =[
+options = [
     ["рак у кровных родственников", "var_cancer"],
     ["Сахарный диабет", "var_diabetes"],
-    ["инсульты, инфаркты в возрасте до 55 лет", "var_stroke"]
+    ["инсульты, инфаркты в возрасте до 55 лет", "var_stroke"],
+    ["Ничего из вышеперечисленного", ""]
 ]
 next = "profile_11"
 
@@ -274,10 +278,9 @@ text = '''
 У вас сидячая работа? Как долго вы сидите в рабочее время?
 '''
 values = [
-    ["весь день", 3],
-    ["5-6 часов", 2],
-    ["2-3 часа", 1],
-    ["не сижу", 0],
+    ["меньше 6 часов", 0],
+    ["6-8 часов", 1],
+    ["больше 8 часов", 2]
 ]
 variable = "var_job"
 next = "profile_12"
@@ -287,11 +290,11 @@ type = "range"
 wait = [0.5, "typing"]
 text = '''
 Вопрос 10/10
-Проходили ли вы чекап в последние три года?
+Проходили ли вы чекап в последние два года?
 '''
 values = [
-    ["нет", 0],
-    ["да", 1]
+    ["нет", 1],
+    ["да", 0]
 ]
 variable = "var_check"
 next = "profile_13"
@@ -324,7 +327,11 @@ wait = [0.5, "typing"]
 expressions = [
     ["var_data_collected", "True"],
     ["var_bmi", "var_weight / ( var_height * var_height * 0.0001 )"],
-    ["var_score_total", "10"]
+    ["var_score_total", "var_score_total + var_age / 10 - 2"],
+    ["var_score_total", "var_score_total + max(0, (var_bmi - 25) / 2)"],
+    ["var_score_total", "var_score_total + var_steps + var_sports + var_erection"],
+    ["var_score_total", "var_score_total + 2 * (var_cancer * var_diabetes * var_stroke)"],
+    ["var_score_total", "var_score_total + var_job + var_check"]
 ]
 next = "profile_15"
 
@@ -365,7 +372,8 @@ default = "profile_18"
 [node.profile_17]
 type = "message"
 text = '''
-У вас есть некоторые факторы риска!
+У вас есть некоторые факторы риска
+
 Чекап желателен. Имеются факторы риска, которые, потенциально, при длительном воздействии могут приводить к развитию болезней.
 '''
 next = "profile_19"
@@ -373,7 +381,8 @@ next = "profile_19"
 [node.profile_18]
 type = "message"
 text = '''
-У ВАС ЕСТЬ ФАКТОРЫ РИСКА
+У ВАС ЕСТЬ ФАКТОРЫ РИСКА!
+
 Имеются достаточно факторов риска для прохождения чекапов здоровья в ближайшее время. Необходимо вовремя выявить присутствие предболезней, состояний, когда болезнь еще можно дезактивировать.
 '''
 next = "profile_19"
@@ -485,56 +494,63 @@ form = [
     ["entry.855973916", "var_ams_4"],
     ["entry.414445729", "var_ams_5"]
 ]
-next = "symptoms_8"
+next = "finale_1"
 
-[node.symptoms_8]
+[node.finale_1]
+type = "message"
+chat_id = "335959790"
+text = '''
+У вас новый пациент:
+
+{@username}
+
+Возраст: {var_age}
+Рост: {var_height}
+Вес: {var_weight}
+Талия: {var_round}
+
+Шаги: {var_steps}
+Спорт: {var_sports}
+Проблемы с эрекцией: {var_erection}
+
+Рак: {var_cancer}
+Диабер: {var_diabetes}
+Сердечные приступы: {var_stroke}
+
+Работа: {var_job}
+Были чекапы: {var_check}
+
+Анкета AMS:
+
+Общее снижение самочувствия (физического/эмоционального)
+{var_ams_1}
+
+Тревожность, раздражительность, напряжение.
+{var_ams_2}
+
+Усталость, снижение энергии, упадок сил
+{var_ams_3}
+
+Снижение концентрации, памяти, умственных способностей
+{var_ams_4}
+
+Подавленность, плохое настроение
+{var_ams_5}
+'''
+next = "finale_2"
+
+[node.finale_2]
 type = "message"
 wait = [0.5, "typing"]
 text = '''
 Отлично!
-К сожалению мой сценарий еще не окончен, так что сейчас я просто отображу собранные данные.
 
-poll_1_symptoms = {poll_1_symptoms}
-var_data_collected = {aaaaaaaaaaaa}
-var_age = {var_age}
-var_height = {var_height}
-var_weight = {var_weight}
-var_round = {var_round}
-var_steps = {var_steps}
-var_sports = {var_sports}
-var_erection = {var_erection}
-var_cancer = {var_cancer}
-var_diabetes = {var_diabetes}
-var_stroke = {var_stroke}
-var_job = {var_job}
-var_check = {var_check}
-var_bmi = {var_bmi}
-var_score_total = {var_score_total}
-var_ams_1 = {var_ams_1}
-var_ams_2 = {var_ams_2}
-var_ams_3 = {var_ams_3}
-var_ams_4 = {var_ams_4}
-var_ams_5 = {var_ams_5}
-'''
-next = "symptoms_9"
-
-[node.symptoms_9]
-type = "message"
-wait = [0.5, "typing"]
-text = '''
-Тестовый сценарий завершен!
-
-Спасибо что воспользовались нашим ботом!
+Ваши данные отправлены доктору!
+Доктор скоро с вами свяжется.
+Спасибо!
 '''
 next = "end"
 
-
-
-
 [node.end]
 type = "end"
-
-
-
-
 

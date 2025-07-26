@@ -1,3 +1,4 @@
+import re
 import requests
 from threading import Timer
 
@@ -38,7 +39,7 @@ class ScriptedBot:
         for sid in self._bot.global_session['sessions']:
             context = self._bot.get_session(sid)
             self._script.init_context(context=context)
-            self._script.technical_event(context, "on_reload", "technical", None)
+            self._script.technical_event(context, "on_reload", "start", None)
 
             # restart timers in case bot was reloaded during some timers
             if "node" in context and context["node"]:
@@ -129,11 +130,15 @@ class ScriptedBot:
     def message_node_handler(self, runner, context, step, event, data):
         def handler():
             message = step["text"]
-            self._bot.send(context["chat"]["id"], format_text(message, context))
+            chat_id = context["chat"]["id"]
+            if 'chat_id' in step:
+                chat_id = context["chat"]["id"]
+            self._bot.send(chat_id, format_text(message, context))
             if "next" in step:
                 self._script.goto(context, step["next"])
             else:
                 print(f"Node {context['node']} has no next node!")
+
         self.event_delay(context, step, event, handler)
 
     def choice_node_handler(self, runner, context, step, event, value):
@@ -154,6 +159,7 @@ class ScriptedBot:
                         del context["last_message_id"]
                         self._script.goto(context, answer[1])
                         return
+
         self.event_delay(context, step, event, handler)
 
     def range_node_handler(self, runner, context, step, event, value):
@@ -171,6 +177,7 @@ class ScriptedBot:
                     f"{text.rstrip()}\n\nВаш ответ: {result}", None)
                 del context["last_message_id"]
                 self._script.goto(context, step["next"])
+
         self.event_delay(context, step, event, handler)
 
     def selection_node_handler(self, runner, context, step, event, poll):
@@ -191,6 +198,7 @@ class ScriptedBot:
                             context["variables"][var] += count
                 self._bot.stop_poll(poll['chat']['id'], poll['message_id'])
                 self._script.goto(context, step["next"])
+
         self.event_delay(context, step, event, handler)
 
     def input_node_handler(self, runner, context, step, event, value: str):
@@ -200,18 +208,26 @@ class ScriptedBot:
                 message = self._bot.send(context["chat"]["id"], text)
                 context["last_message_id"] = message["result"]["message_id"]
             elif event == "message":
-                result = None
-                variable = step["variable"]
-                var_type = self._script.get_variable_type(variable)
-                if var_type == "string":
-                    result = value
-                elif var_type == "number":
-                    result = float(value)
-                elif var_type == "bool":
-                    result = bool(value)
-                context["variables"][variable] = result
-                del context["last_message_id"]
-                self._script.goto(context, step["next"])
+                try:
+                    result = None
+                    variable = step["variable"]
+                    var_type = self._script.get_variable_type(variable)
+                    if var_type == "string":
+                        result = value
+                    elif var_type == "number":
+                        m = re.findall(f'[\\d-]+\\.[\\d-]', value)
+                        result = float(m[0])
+                    elif var_type == "bool":
+                        result = False
+                        if value is True or value == "true" or value == "да" or value == "да":
+                            result = True
+                    context["variables"][variable] = result
+                    del context["last_message_id"]
+                    self._script.goto(context, step["next"])
+                except ValueError:
+                    self._script.technical_event(context, 'cant_parse', 'start', None)
+                    message = self._bot.send(context["chat"]["id"], text)
+
         self.event_delay(context, step, event, handler)
 
     def condition_node_handler(self, runner, context, step, event, value: str):
@@ -222,6 +238,7 @@ class ScriptedBot:
                     self._script.goto(context, cond[1])
                     return
             self._script.goto(context, step["default"])
+
         self.event_delay(context, step, event, handler)
 
     def calculation_node_handler(self, runner, context, step, event, value: str):
@@ -232,6 +249,7 @@ class ScriptedBot:
                 context["variables"][variable] = val
 
             self._script.goto(context, step["next"])
+
         self.event_delay(context, step, event, handler)
 
     def send_form_node_handler(self, runner, context, step, event, value: str):
@@ -250,6 +268,7 @@ class ScriptedBot:
             else:
                 print(f"Failed to submit form: {username}. Status code: {response.status_code}")
             self._script.goto(context, step["next"])
+
         self.event_delay(context, step, event, handler)
 
 # end

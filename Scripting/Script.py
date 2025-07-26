@@ -6,6 +6,8 @@ def format_text(text, context):
         variables = context["variables"]
         for key in variables.keys():
             text = text.replace(f"{{{key}}}", str(variables[key]))
+        name = context["chat"]["username"]
+        text = text.replace("{@username}", f"@{name}")
     return text
 
 
