@@ -231,7 +231,7 @@ class TBot:
                 self._update = idx + 1
         self._call("getUpdates", {
             "offset": self._update,
-            "timeout": self._timeout
+            "timeout": 1
         })
 
     def run(self):

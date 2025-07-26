@@ -34,6 +34,7 @@ class ScriptedBot:
         self._script.add_handler("send_form", ["start"], self.send_form_node_handler)
 
     def run(self):
+        self._bot.cleanup_updates()
         for sid in self._bot.global_session['sessions']:
             context = self._bot.get_session(sid)
             self._script.init_context(context=context)

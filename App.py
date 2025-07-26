@@ -7,6 +7,9 @@ from ScriptedBot import ScriptedBot
 
 from Telegram import TBot
 
+# import json
+# from Scripting import toml
+
 
 def main():
     bot = ScriptedBot(
@@ -65,9 +68,6 @@ def send_form():
         print(f"Failed to submit form. Status code: {response.status_code}")
 
 
-# import json
-# from Scripting import toml
-# 
 # def convert():
 #     with open("Script/release_bot.toml", "r", encoding="utf8") as fin:
 #         data = toml.load(fin)
