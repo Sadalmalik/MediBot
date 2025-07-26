@@ -90,6 +90,7 @@ expressions = [
     ["var_score_total", "0"],
     ["var_erection", "0"],
     ["var_cancer", "0"],
+    ["var_diabetes", "0"],
     ["var_stroke", "0"],
     ["var_bmi", "0"],
 ]
