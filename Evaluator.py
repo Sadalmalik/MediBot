@@ -42,44 +42,55 @@ class ExpressionEvaluator:
         return self.__apply(exp, context)
 
     def __apply(self, exp: ast.Expression, context: dict):
-        match exp:
-            case ast.Constant(value=value):
-                if type(value) not in self.allowed_types:
-                    raise SyntaxError(f"Incorrect value: {value!r}")
-                return value
-            case ast.Name(id=identifier, ctx=ctx):
-                if identifier not in context:
-                    raise SyntaxError(f"Variable '{identifier}' not defined!")
-                return context[identifier]
-            case ast.UnaryOp(op=op, operand=value):
-                try:
-                    return self._operators[type(op)](
-                        self.__apply(value, context))
-                except KeyError:
-                    raise SyntaxError(f"Unknown operation {ast.unparse(exp)}")
-            case ast.BinOp(op=op, left=left, right=right):
-                try:
-                    return self._operators[type(op)](
-                        self.__apply(left, context),
-                        self.__apply(right, context))
-                except KeyError:
-                    raise SyntaxError(f"Unknown operation {ast.unparse(exp)}")
-            case ast.Compare(ops=ops, left=left, comparators=comparators):
-                # only basic support
-                op = ops[0]
-                right = comparators[0]
-                try:
-                    return self._operators[type(op)](
-                        self.__apply(left, context),
-                        self.__apply(right, context))
-                except KeyError:
-                    raise SyntaxError(f"Unknown operation {ast.unparse(exp)}")
-            case ast.BoolOp(op=op, values=values):
-                try:
-                    return self._operators[type(op)](
-                        self.__apply(values[0], context),
-                        self.__apply(values[1], context))
-                except KeyError:
-                    raise SyntaxError(f"Unknown operation {ast.unparse(exp)}")
-            case x:
-                raise SyntaxError(f"Unsupported expression: {ast.unparse(exp)}")
+        if isinstance(exp, ast.Constant):
+            value = exp.value
+            if type(value) not in self.allowed_types:
+                raise SyntaxError(f"Incorrect value: {value!r}")
+            return value
+        elif isinstance(exp, ast.Name):
+            identifier = exp.id
+            if identifier not in context:
+                raise SyntaxError(f"Variable '{identifier}' not defined!")
+            return context[identifier]
+        elif isinstance(exp, ast.UnaryOp):
+            op = exp.op
+            operand = exp.operand
+            try:
+                return self._operators[type(op)](
+                    self.__apply(operand, context))
+            except KeyError:
+                raise SyntaxError(f"Unknown operation {ast.unparse(exp)}")
+        elif isinstance(exp, ast.BinOp):
+            op = exp.op
+            left = exp.left
+            right = exp.right
+            try:
+                return self._operators[type(op)](
+                    self.__apply(left, context),
+                    self.__apply(right, context))
+            except KeyError:
+                raise SyntaxError(f"Unknown operation {ast.unparse(exp)}")
+        elif isinstance(exp, ast.Compare):
+            ops = exp.ops
+            left = exp.left
+            comparators = exp.comparators
+            # only basic support
+            op = ops[0]
+            right = comparators[0]
+            try:
+                return self._operators[type(op)](
+                    self.__apply(left, context),
+                    self.__apply(right, context))
+            except KeyError:
+                raise SyntaxError(f"Unknown operation {ast.unparse(exp)}")
+        elif isinstance(exp, ast.BoolOp):
+            op = exp.op
+            values = exp.values
+            try:
+                return self._operators[type(op)](
+                    self.__apply(values[0], context),
+                    self.__apply(values[1], context))
+            except KeyError:
+                raise SyntaxError(f"Unknown operation {ast.unparse(exp)}")
+        else:
+            raise SyntaxError(f"Unsupported expression: {ast.unparse(exp)}")
