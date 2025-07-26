@@ -4,8 +4,8 @@ import requests
 from private import config
 from ScriptedBot import ScriptedBot
 
-
 from Telegram import TBot
+
 
 # import json
 # from Scripting import toml
@@ -15,7 +15,8 @@ def main():
     bot = ScriptedBot(
         config.bot_token,
         working_directory=os.path.abspath("private/bot"),
-        script_path="Script/release_bot.json")
+        script_path="Script/release_bot.json",
+        admin_id=config.admin_id)
     bot.run()
 
 

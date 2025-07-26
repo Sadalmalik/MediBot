@@ -14,10 +14,10 @@ from Scripting import ScriptableStateMachine, format_text
 
 
 class ScriptedBot:
-    def __init__(self, bot_token: str, working_directory: str, script_path: str):
+    def __init__(self, bot_token: str, working_directory: str, script_path: str, admin_id: str):
         self._eval = ExpressionEvaluator()
 
-        self._bot = TBot(bot_token, working_directory=working_directory, use_sessions=True)
+        self._bot = TBot(bot_token, working_directory=working_directory, use_sessions=True, admin_id=admin_id)
         self._bot.on_message(self.handle_telegram_message)
         self._bot.on_callback(self.handle_telegram_callback)
         self._bot.on_poll(self.handle_telegram_poll)
@@ -224,10 +224,11 @@ class ScriptedBot:
                     context["variables"][variable] = result
                     del context["last_message_id"]
                     self._script.goto(context, step["next"])
-                except Exception:
+                except (IndexError, TypeError, ValueError) as err:
                     self._script.technical_event(context, 'cant_parse', 'start', None)
                     message = self._bot.send(context["chat"]["id"], text)
                     context["last_message_id"] = message["result"]["message_id"]
+                    raise err
 
         self.event_delay(context, step, event, handler)
 

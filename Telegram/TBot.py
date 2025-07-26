@@ -12,6 +12,7 @@ class TBot:
         self._update = kwarg.get("update", 0)
         self._timeout = kwarg.get("polling", 300)
         self._working_directory = kwarg.get("working_directory", "bot_folder")
+        self._admin_id = kwarg.get("admin_id", None)
         os.makedirs(self._working_directory, exist_ok=True)
 
         self.use_sessions = kwarg.get("use_sessions", False)
@@ -247,38 +248,44 @@ class TBot:
             })
             if data["ok"] and data["result"] and len(data["result"]) > 0:
                 for update in data["result"]:
-                    idx = update["update_id"]
-                    if self._update <= idx:
-                        self._update = idx + 1
-                    # print(f"update:\n{json.dumps(update, indent=2)}")
-                    if "message" in update and self._message_handler is not None:
-                        message = update["message"]
-                        for handler in self._handlers:
-                            handler.handle(message)
-                        user_id = message["from"]["id"]
-                        session = self.get_session(user_id)
-                        self._message_handler(message, session)
-                        self.save_session(user_id)
-                    if "callback_query" in update and self._callback_handler is not None:
-                        query = update["callback_query"]
-                        user_id = query["from"]["id"]
-                        session = self.get_session(user_id)
-                        self._callback_handler(query, session)
-                        self.save_session(user_id)
-                    if "poll" in update:
-                        poll = update["poll"]
-                        session = None
-                        if poll['id'] in self.global_session['polls']:
-                            data = self.global_session['polls'][poll['id']]
-                            # restore and bind poll to chat
-                            poll['message_id'] = data['message_id']
-                            poll['chat'] = data['chat']
-                            session = self.get_session(poll['chat']['id'])
-                        self._poll_handler(poll, session)
-                        if poll['id'] in self.global_session['polls']:
-                            self.save_session(poll['chat']['id'])
-                    elif self._update_handler is not None:
-                        self._update_handler(update)
+                    try:
+                        idx = update["update_id"]
+                        if self._update <= idx:
+                            self._update = idx + 1
+                        # print(f"update:\n{json.dumps(update, indent=2)}")
+                        if "message" in update and self._message_handler is not None:
+                            message = update["message"]
+                            for handler in self._handlers:
+                                handler.handle(message)
+                            user_id = message["from"]["id"]
+                            session = self.get_session(user_id)
+                            self._message_handler(message, session)
+                            self.save_session(user_id)
+                        if "callback_query" in update and self._callback_handler is not None:
+                            query = update["callback_query"]
+                            user_id = query["from"]["id"]
+                            session = self.get_session(user_id)
+                            self._callback_handler(query, session)
+                            self.save_session(user_id)
+                        if "poll" in update:
+                            poll = update["poll"]
+                            session = None
+                            if poll['id'] in self.global_session['polls']:
+                                data = self.global_session['polls'][poll['id']]
+                                # restore and bind poll to chat
+                                poll['message_id'] = data['message_id']
+                                poll['chat'] = data['chat']
+                                session = self.get_session(poll['chat']['id'])
+                            self._poll_handler(poll, session)
+                            if poll['id'] in self.global_session['polls']:
+                                self.save_session(poll['chat']['id'])
+                        elif self._update_handler is not None:
+                            self._update_handler(update)
+                    except Exception as exc:
+                        if self._admin_id is not None:
+                            text = f"Произошла ошибка при обработке сообщения:\n\n{update}\n\nException:\n{exc}"
+                            self.send(self._admin_id, text)
+
             if self._after_update:
                 self._after_update(self.global_session)
             self.save_global_session()
