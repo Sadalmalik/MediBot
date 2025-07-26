@@ -1,11 +1,10 @@
 import os
-import json
 import requests
 
-from ScriptedBot import ScriptedBot
 from private import config
+from ScriptedBot import ScriptedBot
 
-from Scripting import toml
+
 from Telegram import TBot
 
 
@@ -13,7 +12,7 @@ def main():
     bot = ScriptedBot(
         config.bot_token,
         working_directory=os.path.abspath("private/bot"),
-        script_path="Script/release_bot.toml")
+        script_path="Script/release_bot.json")
     bot.run()
 
 
@@ -66,7 +65,19 @@ def send_form():
         print(f"Failed to submit form. Status code: {response.status_code}")
 
 
+# import json
+# from Scripting import toml
+# 
+# def convert():
+#     with open("Script/release_bot.toml", "r", encoding="utf8") as fin:
+#         data = toml.load(fin)
+#
+#     with open("Script/release_bot.json", "w", encoding="utf8") as fout:
+#         json.dump(data, fout, indent=2)
+
+
 if __name__ == "__main__":
     # send_form()
-    cleanup()
+    # cleanup()
     main()
+    # convert()

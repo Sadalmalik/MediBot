@@ -1,8 +1,4 @@
 import json
-import traceback
-from threading import Timer
-
-from Scripting import toml
 
 
 def format_text(text, context):
@@ -16,7 +12,7 @@ def format_text(text, context):
 class ScriptableStateMachine:
     def __init__(self, script_file_path, no_script=None):
         with open(script_file_path, "r", encoding="utf8") as script_in:
-            self._script = toml.load(script_in)
+            self._script = json.load(script_in)
             self._nodes = self._script["node"]
             self._technical = self._script.get("technical", None) or {}
         # print(f"Script:\n\n{json.dumps(self._script, indent=2)}\n\n")
