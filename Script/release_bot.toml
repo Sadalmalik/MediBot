@@ -87,7 +87,11 @@ next = "pre_check_up_0"
 type = "calculate"
 expressions = [
     ["poll_1_symptoms", "0"],
-    ["var_score_total", "0"]
+    ["var_score_total", "0"],
+    ["var_erection", "0"],
+    ["var_cancer", "0"],
+    ["var_stroke", "0"],
+    ["var_bmi", "0"],
 ]
 next = "pre_check_up_1"
 
