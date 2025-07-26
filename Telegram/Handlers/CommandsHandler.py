@@ -55,7 +55,4 @@ class CommandsHandler(BaseHandler):
             else:
                 print(f"Unknown command:\n{command}\n")
                 if self.bot is not None:
-                    self.bot.send({
-                        'chat_id': message["chat"]["id"],
-                        'text': f"Unknown command: {command["command"]}"
-                    })
+                    self.bot.send(message["chat"]["id"], command["command"])

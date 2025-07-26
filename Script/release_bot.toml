@@ -490,8 +490,7 @@ type = "message"
 wait = [0.5, "typing"]
 text = '''
 Отлично!
-
-Вот какие данные я собрал:
+К сожалению мой сценарий еще не окончен, так что сейчас я просто отображу собранные данные.
 
 poll_1_symptoms = {poll_1_symptoms}
 var_data_collected = {aaaaaaaaaaaa}
