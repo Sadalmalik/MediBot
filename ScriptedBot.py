@@ -39,7 +39,7 @@ class ScriptedBot:
         for sid in self._bot.global_session['sessions']:
             context = self._bot.get_session(sid)
             self._script.init_context(context=context)
-            self._script.technical_event(context, "on_reload", "start", None)
+            # self._script.technical_event(context, "on_reload", "start", None)
 
             # restart timers in case bot was reloaded during some timers
             if "node" in context and context["node"]:
@@ -215,7 +215,7 @@ class ScriptedBot:
                     if var_type == "string":
                         result = value
                     elif var_type == "number":
-                        m = re.findall(f'[\\d-]+(?:\\.[\\d-])', value)
+                        m = re.findall(f'[\\d-]+(?:\\.[\\d-]){0,1}', value)
                         result = float(m[0])
                     elif var_type == "bool":
                         result = False
