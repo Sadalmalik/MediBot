@@ -173,9 +173,10 @@ class ScriptedBot:
                 context["variables"][step["variable"]] = result
                 message = value
                 for button in step["values"]:
-                    if button[1] == result:
-                        message = button[0]
-                        break
+                    if isinstance(button, list):
+                        if button[1] == result:
+                            message = button[0]
+                            break
                 self._bot.edit_message(
                     context["chat"]["id"],
                     context["last_message_id"],
