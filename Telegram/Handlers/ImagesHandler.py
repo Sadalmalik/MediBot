@@ -55,7 +55,9 @@ class ImagesHandler(BaseHandler):
     def _download_file(self, file, chat_id, message_id):
         if "file_path" not in file:
             return None
-        r = requests.get(f"https://api.telegram.org/file/bot{self.bot._token}/{file["file_path"]}",
+
+        file_path = file["file_path"]
+        r = requests.get(f"https://api.telegram.org/file/bot{self.bot._token}/{file_path}",
                          allow_redirects=True)
         fname = os.path.basename(file["file_path"])
         fpath = f"{self._download_path}/chat{chat_id}/m{message_id}_{fname}"
