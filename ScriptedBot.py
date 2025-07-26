@@ -215,7 +215,7 @@ class ScriptedBot:
                     if var_type == "string":
                         result = value
                     elif var_type == "number":
-                        m = re.findall(f'[\\d-]+\\.[\\d-]', value)
+                        m = re.findall(f'[\\d-]+(?:\\.[\\d-])', value)
                         result = float(m[0])
                     elif var_type == "bool":
                         result = False
@@ -224,9 +224,10 @@ class ScriptedBot:
                     context["variables"][variable] = result
                     del context["last_message_id"]
                     self._script.goto(context, step["next"])
-                except ValueError:
+                except Exception:
                     self._script.technical_event(context, 'cant_parse', 'start', None)
                     message = self._bot.send(context["chat"]["id"], text)
+                    context["last_message_id"] = message["result"]["message_id"]
 
         self.event_delay(context, step, event, handler)
 
