@@ -1,6 +1,7 @@
 import os
 import json
 import requests
+import traceback
 
 from .Session import SessionsManager
 
@@ -283,7 +284,9 @@ class TBot:
                             self._update_handler(update)
                     except Exception as exc:
                         if self._admin_id is not None:
-                            text = f"Произошла ошибка при обработке сообщения:\n\n{update}\n\nException:\n{exc}"
+                            data = json.dumps(update)
+                            trace = traceback.format_exc()
+                            text = f"Произошла ошибка при обработке сообщения:\n\n{data}\n\nException: {exc}\n{trace}"
                             self.send(self._admin_id, text)
 
             if self._after_update:
