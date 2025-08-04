@@ -6,6 +6,7 @@ import traceback
 from .Session import SessionsManager
 
 
+
 class TBot:
     def __init__(self, token, **kwarg):
         self._token = token
@@ -117,11 +118,14 @@ class TBot:
             return response['result']
         return None
 
-    def send(self, chat_id, text):
-        return self._call('sendMessage', {
+    def send(self, chat_id, text, entities=None):
+        payload = {
             'chat_id': chat_id,
             'text': text
-        })
+        }
+        if entities is not None:
+            payload['entities'] = json.dumps(entities)
+        return self._call('sendMessage', payload)
 
     def send_action(self, chat_id, action):
         return self._call('sendChatAction', {
@@ -129,11 +133,13 @@ class TBot:
             'action': action
         })
 
-    def send_question(self, chat_id, text, buttons):
+    def send_question(self, chat_id, text, buttons, entities=None):
         payload = {
             'chat_id': chat_id,
             'text': text
         }
+        if entities is not None:
+            payload['entities'] = json.dumps(entities)
         if buttons is not None:
             def prepare_button(button):
                 if isinstance(button, str):
@@ -154,13 +160,15 @@ class TBot:
 
         return self._call('sendMessage', payload)
 
-    def send_poll(self, chat_id, question, options, multiple_answers=False):
+    def send_poll(self, chat_id, question, options, multiple_answers=False, entities=None):
         payload = {
             'chat_id': chat_id,
             'question': question,
             'options': json.dumps([{'text': option} for option in options]),
             'allows_multiple_answers': multiple_answers
         }
+        if entities is not None:
+            payload['entities'] = json.dumps(entities)
         response = self._call('sendPoll', payload)
         if response['ok']:
             result = response['result']

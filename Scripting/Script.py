@@ -1,16 +1,6 @@
 import json
 
 
-def format_text(text, context):
-    if "variables" in context:
-        variables = context["variables"]
-        for key in variables.keys():
-            text = text.replace(f"{{{key}}}", str(variables[key]))
-        name = context["chat"]["username"]
-        text = text.replace("{@username}", f"@{name}")
-    return text
-
-
 class ScriptableStateMachine:
     def __init__(self, script_file_path, no_script=None):
         with open(script_file_path, "r", encoding="utf8") as script_in:

@@ -4,13 +4,46 @@ from threading import Timer
 
 from Evaluator import ExpressionEvaluator
 from Telegram import TBot
-from Scripting import ScriptableStateMachine, format_text
+from Scripting import ScriptableStateMachine
 
 
 # Эвенты для стейт-машины сценария:
 # start - старт ноды
 # button - пользователь нажал кнопку
 # message - пользователь прислал сообщение
+
+
+def get_full_name(chat):
+    names = []
+    if "first_name" in chat:
+        names.append(chat["first_name"])
+    if "last_name" in chat:
+        names.append(chat["last_name"])
+    return " ".join(names)
+
+
+def format_text(text, context):
+    entities = []
+    if "variables" in context:
+        variables = context["variables"]
+        for key in variables.keys():
+            text = text.replace(f"{{{key}}}", str(variables[key]))
+        chat = context["chat"]
+        if "username" in chat:
+            name = chat["username"]
+            text = text.replace("{@username}", f"@{name}")
+        if "first_name" in chat or "last_name" in chat:
+            name = get_full_name(chat)
+            text = text.replace("{@username}", name)
+            size = len(name)
+            for m in re.finditer(name, text):
+                entities.append({
+                    "type": "text_mention",
+                    "offset": m.start(),
+                    "length": size,
+                    "user": chat
+                })
+    return text, entities
 
 
 class ScriptedBot:
@@ -133,7 +166,8 @@ class ScriptedBot:
             chat_id = context["chat"]["id"]
             if 'chat_id' in step:
                 chat_id = step["chat_id"]
-            self._bot.send(chat_id, format_text(message, context))
+            text, entities = format_text(message, context)
+            self._bot.send(chat_id, text, entities)
             if "next" in step:
                 self._script.goto(context, step["next"])
             else:
@@ -143,10 +177,10 @@ class ScriptedBot:
 
     def choice_node_handler(self, runner, context, step, event, value):
         def handler():
-            text = format_text(step["text"], context)
+            text, entities = format_text(step["text"], context)
             answers = step["answers"]
             if event == "start":
-                message = self._bot.send_question(context["chat"]["id"], text, [answers])
+                message = self._bot.send_question(context["chat"]["id"], text, [answers], entities)
                 context["last_message_id"] = message["result"]["message_id"]
             elif event == "button":
                 for answer in answers:
@@ -164,9 +198,9 @@ class ScriptedBot:
 
     def range_node_handler(self, runner, context, step, event, value):
         def handler():
-            text = format_text(step["text"], context)
+            text, entities = format_text(step["text"], context)
             if event == "start":
-                message = self._bot.send_question(context["chat"]["id"], text, [step["values"]])
+                message = self._bot.send_question(context["chat"]["id"], text, [step["values"]], entities)
                 context["last_message_id"] = message["result"]["message_id"]
             elif event == "button":
                 result = int(value)
@@ -189,10 +223,10 @@ class ScriptedBot:
     def selection_node_handler(self, runner, context, step, event, poll):
         def handler():
             if event == "start":
-                text = format_text(step["text"], context)
+                text, entities = format_text(step["text"], context)
                 options = [option[0] for option in step['options']]
                 multiple = step.get('multiple', False)
-                message = self._bot.send_poll(context["chat"]["id"], text, options, multiple)
+                message = self._bot.send_poll(context["chat"]["id"], text, options, multiple, entities)
                 context["last_message_id"] = message["result"]["message_id"]
             elif event == "poll":
                 for poll_option in poll['options']:
@@ -209,9 +243,9 @@ class ScriptedBot:
 
     def input_node_handler(self, runner, context, step, event, value: str):
         def handler():
-            text = format_text(step["text"], context)
+            text, entities = format_text(step["text"], context)
             if event == "start":
-                message = self._bot.send(context["chat"]["id"], text)
+                message = self._bot.send(context["chat"]["id"], text, entities)
                 context["last_message_id"] = message["result"]["message_id"]
             elif event == "message":
                 try:

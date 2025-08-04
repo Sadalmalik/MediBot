@@ -217,3 +217,75 @@ Process finished with exit code -1
 
 
 
+
+{
+  "update_id": 189226152,
+  "message": {
+    "message_id": 1324,
+    "from": {
+      "id": 356775702,
+      "is_bot": false,
+      "first_name": "Stanislav",
+      "last_name": "Koronatov",
+      "language_code": "en"
+    },
+    "chat": {
+      "id": 356775702,
+      "first_name": "Stanislav",
+      "last_name": "Koronatov",
+      "type": "private"
+    },
+    "date": 1753692784,
+    "text": "/start",
+    "entities": [
+      {
+        "offset": 0,
+        "length": 6,
+        "type": "bot_command"
+      }
+    ]
+  }
+}
+
+Traceback (most recent call last):
+  File "/home/ec2-user/tbot/Telegram/TBot.py", line 263, in run
+    self._message_handler(message, session)
+  File "/home/ec2-user/tbot/ScriptedBot.py", line 67, in handle_telegram_message
+    self._script.goto(session, command)
+  File "/home/ec2-user/tbot/Scripting/Script.py", line 96, in goto
+    self.event(context, "start", None)
+  File "/home/ec2-user/tbot/Scripting/Script.py", line 103, in event
+    self._call_event(context, node, event, data)
+  File "/home/ec2-user/tbot/Scripting/Script.py", line 85, in _call_event
+    handler(self, context, node, event, data)
+  File "/home/ec2-user/tbot/ScriptedBot.py", line 142, in message_node_handler
+    self.event_delay(context, step, event, handler)
+  File "/home/ec2-user/tbot/ScriptedBot.py", line 109, in event_delay
+    inner_handler()
+  File "/home/ec2-user/tbot/ScriptedBot.py", line 136, in handler
+    self._bot.send(chat_id, format_text(message, context))
+  File "/home/ec2-user/tbot/Scripting/Script.py", line 9, in format_text
+    name = context["chat"]["username"]
+KeyError: 'username'
+
+
+
+
+
+
+Если нет юзернейма - можно отправить *упоминание* в тексте
+[
+{
+    "type": "text_mention",
+    "offset": 7,
+    "length": 9,
+    "user": {
+      "id": 123456789,
+      "is_bot": false,
+      "first_name": "John Doe"
+    }
+}
+]
+
+
+

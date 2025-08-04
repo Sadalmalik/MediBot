@@ -20,9 +20,29 @@ def main():
     bot.run()
 
 
+def get_full_name(chat):
+    names = []
+    if "first_name" in chat:
+        names.append(chat["first_name"])
+    if "last_name" in chat:
+        names.append(chat["last_name"])
+    return " ".join(names)
+
+
 def cleanup():
     bot = TBot(config.bot_token, use_sessions=True)
-    bot.cleanup_updates()
+    chat = bot.get_chat("356775702")
+    name = get_full_name(chat)
+    text = f"Ссылка в описании: {name}"
+    notion = {
+        "type": "text_mention",
+        "offset": text.find(name),
+        "length": len(name),
+        "user": chat
+    }
+    bot.send("820216855", text, [notion])
+
+    # bot.cleanup_updates()
 
 
 # <div jsname="o6bZLc">
