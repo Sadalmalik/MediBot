@@ -233,7 +233,7 @@ class TBot:
     def cleanup_updates(self):
         data = self._call("getUpdates", {
             "offset": self._update,
-            "timeout": self._timeout
+            "timeout": 1
         })
         if "result" in data:
             for update in data["result"]:

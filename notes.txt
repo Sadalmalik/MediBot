@@ -289,3 +289,9 @@ KeyError: 'username'
 
 
 
+
+
+ps aux | grep python
+
+nohup .venv/bin/python App.py &
+
